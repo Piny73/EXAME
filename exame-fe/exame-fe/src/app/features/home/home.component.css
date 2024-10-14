@@ -33,9 +33,9 @@
 
     /* Aggiungi un effetto di bagliore alla cornice */
     box-shadow: 
-        0 0 10px #f9ce7e, /* Bagliore giallo all'esterno */
-        0 0 20px #fcba40, 
-        0 0 30px #FFA500; /* Bagliore arancione esteso */
+        0 0 10px rgb(74, 74, 139), /* Bagliore all'esterno */
+        0 0 20px rgb(31, 31, 124), 
+        0 0 30px navy; /* Bagliore esteso */
 
     /* Filtro per aggiungere un leggero bagliore */
     filter: brightness(1.1);
