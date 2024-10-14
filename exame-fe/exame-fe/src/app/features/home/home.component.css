@@ -24,10 +24,28 @@
         1px -1px 0 navy; /* Ombra in alto a destra */
     background-color: #d5e9fc; /* Colore di sfondo chiaro */
     border: ridge navy;
-    border-radius: 5px;
     padding: 20px;
+
+    /* Trasforma il box in un ovale */
+    border-radius: 50%; /* Arrotonda il box fino a renderlo ovale */
+    width: 200px; /* Larghezza personalizzata */
+    height: 100px; /* Altezza personalizzata */
+
+    /* Aggiungi un effetto di bagliore alla cornice */
+    box-shadow: 
+        0 0 10px rgba(255, 255, 0, 0.8), /* Bagliore giallo all'esterno */
+        0 0 20px rgba(255, 255, 0, 0.6), 
+        0 0 30px rgba(255, 165, 0, 0.5); /* Bagliore arancione esteso */
+
+    /* Filtro per aggiungere un leggero bagliore */
+    filter: brightness(1.1);
+
+    /* Centrare il testo all'interno dell'ovale */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }
-  
   .menu-opcoes {
     display: flex;
     flex-direction: column;

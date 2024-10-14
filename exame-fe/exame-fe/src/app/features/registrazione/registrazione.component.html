@@ -1,7 +1,7 @@
 <div class="login-container">
   <form [formGroup]="registrazioneForm" (ngSubmit)="onSubmit()">
     <div class="form-group">
-      <label for="name">Name</label>
+      <label for="name">Nome</label>
       <input
         id="name"
         formControlName="name"
@@ -9,7 +9,7 @@
         class="form-control"
       />
       <div *ngIf="registrazioneForm.get('name')?.invalid && registrazioneForm.get('name')?.touched" class="error-message">
-        Username is required
+        Username è richiesta
       </div>
     </div>
 
@@ -22,7 +22,7 @@
         class="form-control"
       />
       <div *ngIf="registrazioneForm.get('email')?.invalid && registrazioneForm.get('email')?.touched" class="error-message">
-        Username is required
+        Email è richiesta
       </div>
     </div>
 
@@ -36,7 +36,7 @@
         class="form-control"
       />
       <div *ngIf="registrazioneForm.get('pwd')?.invalid && registrazioneForm.get('pwd')?.touched" class="error-message">
-        Password is required
+        Password è richiesta
       </div>
     </div>
     <button type="submit" [disabled]="!registrazioneForm.valid" class="btn btn-primary">Save</button>
