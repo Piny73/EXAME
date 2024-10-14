@@ -1,4 +1,9 @@
 package airhacks.service.ping.boundary;
+
+/**
+ *
+ * @author piny7
+ */
 import java.net.URI;
 import javax.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;

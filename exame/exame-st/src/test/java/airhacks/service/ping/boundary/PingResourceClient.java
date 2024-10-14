@@ -1,5 +1,9 @@
 package airhacks.service.ping.boundary;
 
+/**
+ *
+ * @author piny7
+ */
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
