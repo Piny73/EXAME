@@ -11,7 +11,7 @@
         <div class="col-md-6">
           <label for="activity" class="form-label">Attività</label>
           <select id="activity" formControlName="activityid" class="form-control" (change)="onActivitySelected($event)">
-            <option *ngFor="let activity of activityList" [value]="activity.id">{{ activity.description}}</option>
+            <option *ngFor="let activity of activityList" [value]="activity.id">{{ activity.description }}</option>
           </select>
         </div>
         <div class="col-md-6">
@@ -52,16 +52,17 @@
           </div>
         </div>
       </div>
-    </form>
-  </div>
 
-  <!-- Buttons -->
-  <div class="row">
-    <div class="col-md-12 d-flex justify-content-end">
-      <button type="button" class="btn btn-secondary me-2" (click)="resetForm()">Pulisci</button>
-      <button type="button" class="btn btn-danger me-2" (click)="openDeleteConfirmation()">Cancella</button>
-      <button type="submit" class="btn btn-primary" [disabled]="timesheetForm.invalid">Salva</button>
-    </div>
+      <!-- Buttons -->
+      <div class="row">
+        <div class="col-md-12 d-flex justify-content-end">
+          <button type="button" class="btn btn-secondary me-2" (click)="resetForm()">Pulisci</button>
+          <button type="button" class="btn btn-danger me-2" (click)="openDeleteConfirmation()">Cancella</button>
+          <!-- Modifica il tipo del pulsante a "submit" per eseguire il submit -->
+          <button type="submit" class="btn btn-primary" [disabled]="timesheetForm.invalid">Salva</button>
+        </div>
+      </div>
+    </form>
   </div>
 
   <!-- Confirmation Dialogs -->
@@ -85,6 +86,7 @@
     </div>
   </div>
 </div>
+
 
 
   

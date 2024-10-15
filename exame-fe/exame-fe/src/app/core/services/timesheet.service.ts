@@ -7,7 +7,7 @@ import { TimeSheetDTO } from '../models/timesheet.model';
   providedIn: 'root'
 })
 export class TimesheetService {
-  private baseUrl = 'http://localhost:8080/exame/api/timesheets';
+  private baseUrl = 'http://localhost:8080/exame/api/timesheet';
 
   constructor(private http: HttpClient) {}
 

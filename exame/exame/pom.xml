@@ -63,6 +63,19 @@
             <version>3.0.3</version>
             <scope>test</scope>
         </dependency>
+        <!-- Dipendenza per JSON-B API -->
+    <dependency>
+        <groupId>javax.json.bind</groupId>
+        <artifactId>javax.json.bind-api</artifactId>
+        <version>1.0</version>
+    </dependency>
+
+    <!-- Dipendenza per Yasson (implementazione JSON-B) -->
+    <dependency>
+        <groupId>org.eclipse</groupId>
+        <artifactId>yasson</artifactId>
+        <version>1.0.9</version>
+    </dependency>
     </dependencies>
     <build>
         <plugins>

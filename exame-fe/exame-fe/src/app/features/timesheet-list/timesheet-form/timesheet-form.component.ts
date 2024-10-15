@@ -1,4 +1,3 @@
-// timesheet-form.component.ts
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -7,6 +6,8 @@ import { UtilsService } from '../../../core/utils.service';
 import { TimeSheetDTO } from '../../../core/models/timesheet.model';
 import { User } from '../../../core/models/user.model';
 import { Activity } from '../../../core/models/activity.model';
+import { UserService } from '../../../core/services/user.service';
+import { ActivityService } from '../../../core/services/activity.service';
 
 @Component({
   selector: 'app-timesheet-form',
@@ -30,7 +31,9 @@ export class TimesheetFormComponent implements OnInit {
     private fb: FormBuilder,
     private timesheetService: TimesheetService,
     private utils: UtilsService,
-    public activeModal: NgbActiveModal
+    public activeModal: NgbActiveModal,
+    private userService: UserService, // Aggiunta UserService
+    private activityService: ActivityService // Aggiunta ActivityService
   ) {}
 
   ngOnInit(): void {
@@ -52,9 +55,37 @@ export class TimesheetFormComponent implements OnInit {
       this.timesheetForm.patchValue({ ...this.timesheet });
     }
 
+    // Carica le liste di utenti e attività
     this.loadUsers();
     this.loadActivities();
   }
+
+  // Carica la lista degli utenti
+  loadUsers(): void {
+    this.userService.getAllUsers().subscribe({
+      next: (data: User[]) => {
+        this.userList = data;
+        console.log('Utenti caricati:', this.userList); // Per debugging
+      },
+      error: (error) => {
+        console.error('Errore durante il caricamento degli utenti:', error);
+      }
+    });
+  }
+
+// Carica la lista delle attività dal backend
+loadActivities(): void {
+  this.activityService.fill().subscribe({
+    next: (data: Activity[]) => {
+      this.activityList = data;
+      console.log('Attività caricate:', this.activityList); // Per debugging
+    },
+    error: (error) => {
+      console.error('Errore durante il caricamento delle attività:', error);
+    }
+  });
+}
+
 
   onActivitySelected(event: Event): void {
     const target = event.target as HTMLSelectElement;
@@ -72,19 +103,32 @@ export class TimesheetFormComponent implements OnInit {
 
   onSubmit(): void {
     if (this.timesheetForm.valid) {
-      this.timesheet = this.timesheetForm.value;
-      this.confirmSave();
+      console.log('Form è valido, avvio il salvataggio...');
+      this.save(); // Chiama il metodo save per salvare il timesheet
     } else {
-      console.log('Form non valido');
-      this.timesheetForm.markAllAsTouched();
+      console.log('Form non valido, impossibile salvare');
+      this.timesheetForm.markAllAsTouched(); // Mostra gli errori di validazione
     }
+  }
+    // Metodo per formattare le date nel formato 'dd/MM/yyyy HH:mm:ss' prima di inviare al backend
+  formatDateForBackend(date: Date): string {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Mesi da 0 a 11
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+    return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
   }
 
   save(): void {
     const timesheetData = { ...this.timesheetForm.value };
-    timesheetData.dtstart = this.utils.formatDate(timesheetData.dtstart, true);
-    timesheetData.dtend = this.utils.formatDate(timesheetData.dtend, true);
-
+    
+    // Converti le date al formato corretto per il backend
+    timesheetData.dtstart = this.utils.formatDateForBackend(new Date(timesheetData.dtstart));
+    timesheetData.dtend = this.utils.formatDateForBackend(new Date(timesheetData.dtend));
+    
     if (timesheetData.id) {
       this.timesheetService.updateTimesheet(timesheetData).subscribe({
         next: () => {
@@ -111,18 +155,14 @@ export class TimesheetFormComponent implements OnInit {
       });
     }
   }
+  
+  
+  
+  
 
   resetForm(): void {
     this.timesheet = { ...this.timesheetCopy };
     this.timesheetForm.reset(this.timesheet);
-  }
-
-  loadUsers(): void {
-    // Logica per caricare l'elenco degli utenti
-  }
-
-  loadActivities(): void {
-    // Logica per caricare l'elenco delle attività
   }
 
   // Gestione dei dialog di conferma
@@ -146,3 +186,5 @@ export class TimesheetFormComponent implements OnInit {
     this.showDeleteDialog = true;
   }
 }
+
+

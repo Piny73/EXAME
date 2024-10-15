@@ -29,8 +29,9 @@ export class ActivityFormComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.initializeForm();
+    this.initializeForm(); // Inizializza il FormGroup
 
+    // Se è un'attività esistente, popola il form con i dati dell'attività
     if (this.activity) {
       this.populateFormWithActivityData();
     }
@@ -65,7 +66,7 @@ export class ActivityFormComponent implements OnInit {
   onSubmit(): void {
     if (this.activityForm.valid) {
       this.activity = this.activityForm.value; // Assegna i valori dal form all'attività
-      this.confirmSave(); // Chiede conferma per il salvataggio
+      this.showSaveDialog = true; // Mostra il dialog di conferma per il salvataggio
     } else {
       console.log('Form non valido');
       this.activityForm.markAllAsTouched(); // Mostra i messaggi di errore
@@ -75,7 +76,7 @@ export class ActivityFormComponent implements OnInit {
   // Salva i dati dell'attività
   save(): void {
     const formattedDateStart = new Date(this.activityForm.value.dtstart).toISOString();
-    const formattedDateEnd = new Date(this.activityForm.value.dtend).toISOString();
+    const formattedDateEnd = this.activityForm.value.dtend ? new Date(this.activityForm.value.dtend).toISOString() : null;
 
     const activityData = {
       ...this.activityForm.value,
@@ -149,46 +150,48 @@ export class ActivityFormComponent implements OnInit {
 
   // Conferma il salvataggio
   confirmSave(): void {
-    this.showSaveDialog = false;
+    this.showSaveDialog = false; // Nasconde il dialog di salvataggio
     this.save(); // Chiama la funzione di salvataggio
   }
 
   // Conferma l'eliminazione
   confirmDelete(): void {
-    this.showDeleteDialog = false;
+    this.showDeleteDialog = false; // Nasconde il dialog di eliminazione
     this.deleteObject(); // Chiama la funzione di eliminazione
   }
 
   // Annulla il salvataggio
   cancelSave(): void {
-    this.showSaveDialog = false;
+    this.showSaveDialog = false; // Nasconde il dialog di salvataggio
   }
 
   // Annulla l'eliminazione
   cancelDelete(): void {
-    this.showDeleteDialog = false;
+    this.showDeleteDialog = false; // Nasconde il dialog di eliminazione
   }
 
-  resetForm(form?: FormGroup): void {
-    if (form) {
-      form.reset(this.activity); // Usa il form passato come argomento
-    } else {
-      this.activityForm.reset(this.activity); // Usa il form del componente
-    }
+  // Resetta il form
+  resetForm(): void {
+    this.activityForm.reset({
+      id: 0,
+      description: '',
+      ownerid: null,
+      dtstart: '',
+      dtend: '',
+      enable: false
+    });
   }
 
-  // Nuova attività
-  newObject(): void {
-    this.activity = new Activity();
-    this.currentOwner = null;
-    this.activityForm.patchValue(this.activity); // Inizializza il form con una nuova attività
-  }
-
+  // Gestisce la selezione del proprietario (ownerid)
   onOwnerSelected(event: any): void {
+    this.activityForm.patchValue({ ownerid: event });
     console.log('Proprietario selezionato:', event);
   }
 
+  // Apre il dialog di conferma eliminazione
   openDeleteConfirmation(): void {
-    console.log('Conferma di eliminazione aperta');
+    this.showDeleteDialog = true;
   }
 }
+
+

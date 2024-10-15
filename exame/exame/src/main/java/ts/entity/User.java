@@ -26,10 +26,6 @@ public class User extends BaseEntity {
     @Column(nullable = false)    
     private String pwd;
     
-    @NotBlank
-    @Column(nullable = false)
-    private String roleUser; // Aggiunto il campo roleUser per gestire il ruolo dell'utente
-
     // Getters e Setters
     public String getName() {
         return name;
@@ -53,13 +49,5 @@ public class User extends BaseEntity {
 
     public void setPwd(String pwd) {
         this.pwd = pwd;
-    }
-
-    public String getRoleUser() {
-        return roleUser;
-    }
-
-    public void setRoleUser(String roleUser) {
-        this.roleUser = roleUser;
     }
 }
