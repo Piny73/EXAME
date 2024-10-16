@@ -1,8 +1,9 @@
-import { Component, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, TemplateRef } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges, TemplateRef } from '@angular/core';
 import { Activity } from '../../core/models/activity.model';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ActivityService } from '../../core/services/activity.service';
-import { Observable, Subscription, map, catchError, startWith } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { map, catchError, startWith } from 'rxjs';
 
 
 interface ActivityData {
@@ -11,13 +12,12 @@ interface ActivityData {
   error: string | null;
 }
 
-
 @Component({
   selector: 'app-activity-list',
   templateUrl: './activity-list.component.html',
   styleUrl: './activity-list.component.css'
 })
-export class ActivityListComponent implements OnInit, OnDestroy, OnChanges {
+export class ActivityListComponent implements OnInit, OnChanges {
 
   private modalService = inject(NgbModal);
   
@@ -27,7 +27,6 @@ export class ActivityListComponent implements OnInit, OnDestroy, OnChanges {
   title = 'Activity';
   activityData$!: Observable<ActivityData>;
   selectedActivity!: Activity;
-  private subscription!: Subscription;
 
   constructor(private activityService: ActivityService) {}
 
@@ -46,28 +45,21 @@ export class ActivityListComponent implements OnInit, OnDestroy, OnChanges {
 
   load(): void {
     this.activityData$ = this.activityService.fill().pipe(
-      map((data: Activity[]) => {
-        return {
-          loading: false,
-          activityList: data,
-          error: null
-        };
-      }),
+      map((data: Activity[]) => ({
+        loading: false,
+        activityList: data,
+        error: null
+      })),
       catchError(error => {
         console.error('Error:', error);
-        return [{
+        return of({
           loading: false,
           activityList: null,
-          error: 'Error.'
-        }];
+          error: 'Si è verificato un errore nel caricamento delle attività.'
+        });
       }),
       startWith({ loading: true, activityList: null, error: null })
     );
-
-    this.subscription = this.activityData$.subscribe(data => {
-      if (data.activityList) {
-      }
-    });
   }
 
   selectActivity(ac: Activity) {
@@ -75,15 +67,15 @@ export class ActivityListComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   openDetail(content: TemplateRef<any>) {
-		this.modalService.open(content, { size: 'xl' });
-	}
+    this.modalService.open(content, { size: 'xl' });
+  }
 
   openNew(content: TemplateRef<any>){
     this.selectedActivity = new Activity();
     this.modalService.open(content, { size: 'xl' });
   }
 
-  reload(load : boolean){
+  reload(load: boolean){
     this.modalService.dismissAll();
     console.log("reload.0");
     if(load){
@@ -91,11 +83,4 @@ export class ActivityListComponent implements OnInit, OnDestroy, OnChanges {
       this.load();
     }
   }
-
-  ngOnDestroy(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
-  }
-
 }

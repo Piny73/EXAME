@@ -192,6 +192,16 @@ export class ActivityFormComponent implements OnInit {
   openDeleteConfirmation(): void {
     this.showDeleteDialog = true;
   }
+
+  // Aggiungi la gestione della selezione di un'attività
+  selectActivity(activity: Activity) {
+    this.activityForm.patchValue({
+      id: activity.id,
+      description: activity.description,
+      ownerid: activity.ownerid,
+      dtstart: activity.dtstart,
+      dtend: activity.dtend,
+      enable: activity.enable
+    });
+  }
 }
-
-

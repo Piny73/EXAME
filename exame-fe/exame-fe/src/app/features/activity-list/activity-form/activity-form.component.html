@@ -1,5 +1,11 @@
-<!-- Form Container -->
 <div class="form-container">
+  <!-- Elenco delle Attività -->
+  <h5 class="mb-4">Elenco Attività</h5>
+  <div class="table-responsive">
+    <app-activity-list (onSelectActivity)="selectActivity($event)"></app-activity-list>
+  </div>
+
+  <!-- Form Container -->
   <div>
     <form [formGroup]="activityForm" (ngSubmit)="onSubmit()">
       <div class="form-container">
@@ -88,6 +94,3 @@
     </div>
   </div>
 </div>
-
-
-

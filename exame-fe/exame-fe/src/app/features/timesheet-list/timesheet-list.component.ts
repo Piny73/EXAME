@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { TimesheetService } from '../../core/services/timesheet.service';
 import { TimeSheetDTO } from '../../core/models/timesheet.model';
 import { finalize } from 'rxjs/operators';
+import { Router } from '@angular/router';  // Importa il router per la navigazione
 
 @Component({
   selector: 'app-timesheet-list',
@@ -15,12 +16,16 @@ export class TimesheetListComponent implements OnInit {
   loading = false; // Indicatore di caricamento
   errorMessage = ''; // Messaggio di errore
 
-  constructor(private timesheetService: TimesheetService) {}
+  constructor(
+    private timesheetService: TimesheetService,
+    private router: Router  // Inietta il Router per la navigazione
+  ) {}
 
   ngOnInit(): void {
     this.loadTimesheets();
   }
 
+  // Carica i timesheet dal servizio
   loadTimesheets(): void {
     this.loading = true;
     this.errorMessage = '';
@@ -30,28 +35,30 @@ export class TimesheetListComponent implements OnInit {
       (data: TimeSheetDTO[]) => {
         this.timesheets = data;
       },
-      (error: any) => { // Tipizza il parametro 'error' come 'any' o usa un tipo più specifico
+      (error: any) => {
         this.errorMessage = 'Errore durante il caricamento dei timesheet.';
         console.error(this.errorMessage, error);
       }
     );
   }
 
+  // Aggiunge un nuovo timesheet, navigando alla pagina del modulo
   addNewTimesheet(): void {
-    // Naviga al modulo per aggiungere un nuovo timesheet
-    // Ad esempio, utilizzare il router per navigare alla pagina del form
+    this.router.navigate(['/timesheets/new']);  // Naviga al modulo per aggiungere un nuovo timesheet
   }
 
+  // Modifica un timesheet esistente
   editTimesheet(timesheet: TimeSheetDTO): void {
-    // Naviga al modulo per modificare il timesheet
-    // Ad esempio, utilizzare il router per navigare alla pagina del form con l'ID del timesheet
+    this.router.navigate(['/timesheets/edit', timesheet.id]);  // Naviga al modulo per modificare il timesheet
   }
 
+  // Conferma l'eliminazione di un timesheet
   confirmDelete(timesheet: TimeSheetDTO): void {
     this.timesheetToDelete = timesheet;
     this.showDeleteDialog = true;
   }
 
+  // Elimina un timesheet confermato
   deleteTimesheet(): void {
     if (this.timesheetToDelete) {
       this.loading = true;
@@ -60,10 +67,10 @@ export class TimesheetListComponent implements OnInit {
         finalize(() => this.loading = false)
       ).subscribe(
         () => {
-          this.loadTimesheets();
-          this.cancelDelete();
+          this.loadTimesheets();  // Ricarica i timesheet dopo l'eliminazione
+          this.cancelDelete();    // Chiudi il dialogo di conferma
         },
-        (error: any) => { // Tipizza il parametro 'error' come 'any' o usa un tipo più specifico
+        (error: any) => {
           this.errorMessage = 'Errore durante l\'eliminazione del timesheet.';
           console.error(this.errorMessage, error);
         }
@@ -71,10 +78,9 @@ export class TimesheetListComponent implements OnInit {
     }
   }
 
+  // Annulla il dialogo di eliminazione
   cancelDelete(): void {
     this.timesheetToDelete = null;
     this.showDeleteDialog = false;
   }
 }
-
-

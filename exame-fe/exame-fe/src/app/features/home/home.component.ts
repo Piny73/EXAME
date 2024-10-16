@@ -20,6 +20,8 @@ export class HomeComponent {
   activityData: { data: Activity[] } = { data: [] };
   timeSheetData: { data: TimeSheet[] } = { data: [] };
   userData: { data: User[] } = { data: [] };
+  selectedActivity!: Activity;  // Aggiunto: memorizza l'attività selezionata
+  selectedTimesheet!: TimeSheet;  // Memorizza il timesheet selezionato
 
   constructor(
     public activityService: ActivityService,
@@ -51,6 +53,25 @@ export class HomeComponent {
           this.isLoading = false;
         }
       });
+  }
+
+  // Aggiunto: seleziona un'attività e la memorizza
+  selectActivity(activity: Activity) {
+    this.selectedActivity = activity;  // Memorizza l'attività selezionata
+    console.log('Attività selezionata:', activity);  // Solo per debug, puoi rimuoverlo
+  }
+
+  // Aggiunto: seleziona un timesheet e lo memorizza
+  selectTimesheet(timesheet: TimeSheet): void {
+    this.selectedTimesheet = timesheet;  // Memorizza il timesheet selezionato
+    console.log('Timesheet selezionato:', timesheet);  // Solo per debug, puoi rimuoverlo
+  }
+
+  // Aggiunto: ricarica i dati se necessario
+  reload(shouldReload: boolean) {
+    if (shouldReload) {
+      this.loadData();  // Ricarica i dati
+    }
   }
 
   // Funzione per aprire il modal per la creazione o modifica di un'attività

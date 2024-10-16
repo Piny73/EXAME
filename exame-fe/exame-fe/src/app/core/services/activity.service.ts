@@ -17,6 +17,8 @@ export class ActivityService {
     private apiService: ApiService
   ) {}
 
+  
+
   // Metodo per salvare una nuova attività
   save(activity: Activity): Observable<Activity> {
     const headers = new HttpHeaders({ 
