@@ -1,4 +1,6 @@
-<div class="timesheet-list-container">
+<div class="form-container">
+  <h5 class="mb-4">Elenco dei Timesheet</h5>
+
   <!-- Se ci sono timesheets, mostra la tabella -->
   <div *ngIf="timesheets.length > 0; else noTimesheets">
     <table class="table table-striped">
@@ -16,13 +18,12 @@
       <tbody>
         <tr *ngFor="let timesheet of timesheets">
           <td>{{ timesheet.id }}</td>
-          <td>{{ timesheet.activityid }}</td> <!-- ID Attività -->
-          <td>{{ timesheet.userid }}</td> <!-- ID Utente -->
-          <td>{{ timesheet.dtstart | date: 'dd/MM/yyyy' }}</td> <!-- Data Inizio -->
-          <td>{{ timesheet.dtend | date: 'dd/MM/yyyy' }}</td> <!-- Data Fine -->
+          <td>{{ timesheet.activityId }}</td> <!-- ID Attività -->
+          <td>{{ timesheet.userId }}</td> <!-- ID Utente -->
+          <td>{{ timesheet.dtstart | date: 'dd/MM/yyyy HH:mm' }}</td> <!-- Data Inizio -->
+          <td>{{ timesheet.dtend | date: 'dd/MM/yyyy HH:mm' }}</td> <!-- Data Fine -->
           <td>{{ timesheet.detail }}</td> <!-- Dettaglio -->
           <td>
-            <!-- Usa il modal per aprire il form per la modifica -->
             <button class="btn btn-sm btn-primary me-2" (click)="openTimesheetModal(timesheet)">Modifica</button>
             <button class="btn btn-sm btn-danger" (click)="confirmDelete(timesheet)">Elimina</button>
           </td>
@@ -47,3 +48,4 @@
     </div>
   </div>
 </div>
+

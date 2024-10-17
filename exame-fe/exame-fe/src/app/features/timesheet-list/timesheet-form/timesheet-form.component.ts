@@ -17,12 +17,10 @@ import { ActivityService } from '../../../core/services/activity.service';
 export class TimesheetFormComponent implements OnInit {
   timesheetForm!: FormGroup;
   private timesheetCopy!: TimeSheetDTO;
-  currentUser!: number | null;
-  currentActivity!: number | null;
-  showSaveDialog = false;
-  showDeleteDialog = false;
   userList: User[] = [];
   activityList: Activity[] = [];
+  showSaveDialog = false; // Variabile per il dialogo di salvataggio
+  showDeleteDialog = false; // Variabile per il dialogo di eliminazione
 
   @Input() timesheet!: TimeSheetDTO; // Riceve il timesheet da modificare o uno nuovo da creare
   @Output() reload = new EventEmitter<boolean>(); // Evento per ricaricare la lista
@@ -32,117 +30,93 @@ export class TimesheetFormComponent implements OnInit {
     private timesheetService: TimesheetService,
     private utils: UtilsService,
     public activeModal: NgbActiveModal,
-    private userService: UserService, // Aggiunta UserService
-    private activityService: ActivityService // Aggiunta ActivityService
+    private userService: UserService,
+    private activityService: ActivityService
   ) {}
 
   ngOnInit(): void {
+    this.initializeForm(); // Inizializza il form
+    if (this.timesheet) {
+      this.loadTimesheetData(); // Carica i dati del timesheet se esistente
+    }
+    this.loadUsers(); // Carica la lista degli utenti
+    this.loadActivities(); // Carica la lista delle attività
+  }
+
+  // Inizializza il FormGroup
+  private initializeForm(): void {
     this.timesheetForm = this.fb.group({
       id: [null],
-      userid: [null, Validators.required],
-      activityid: [null, Validators.required],
+      userId: [null, Validators.required], // Corretto per l'uso del camelCase
+      activityId: [null, Validators.required], // Corretto per l'uso del camelCase
       dtstart: ['', Validators.required],
       dtend: [''],
-      detail: ['', Validators.maxLength(500)]
+      detail: ['', [Validators.required, Validators.maxLength(500)]]
     });
+  }
 
-    if (this.timesheet) {
-      this.currentUser = this.timesheet.userid;
-      this.currentActivity = this.timesheet.activityid;
-      this.timesheet.dtstart = this.timesheet.dtstart ? this.utils.formatDate(this.timesheet.dtstart, true) : '';
-      this.timesheet.dtend = this.timesheet.dtend ? this.utils.formatDate(this.timesheet.dtend, true) : '';
-      this.timesheetCopy = { ...this.timesheet };
-      this.timesheetForm.patchValue({ ...this.timesheet });
-    }
-
-    // Carica le liste di utenti e attività
-    this.loadUsers();
-    this.loadActivities();
+  // Carica i dati del timesheet se esistente
+  private loadTimesheetData(): void {
+    this.timesheetCopy = { ...this.timesheet };
+    this.timesheetForm.patchValue({
+      ...this.timesheet,
+      dtstart: this.utils.formatDate(this.timesheet.dtstart, true),
+      dtend: this.utils.formatDate(this.timesheet.dtend, true)
+    });
   }
 
   // Carica la lista degli utenti
-  loadUsers(): void {
+  private loadUsers(): void {
     this.userService.getAllUsers().subscribe({
-      next: (data: User[]) => {
-        this.userList = data;
-        console.log('Utenti caricati:', this.userList); // Per debugging
-      },
-      error: (error) => {
-        console.error('Errore durante il caricamento degli utenti:', error);
-      }
+      next: (data: User[]) => this.userList = data,
+      error: (error) => console.error('Errore durante il caricamento degli utenti:', error)
     });
   }
 
-  // Carica la lista delle attività dal backend
-  loadActivities(): void {
+  // Carica la lista delle attività
+  private loadActivities(): void {
     this.activityService.fill().subscribe({
-      next: (data: Activity[]) => {
-        this.activityList = data;
-        console.log('Attività caricate:', this.activityList); // Per debugging
-      },
-      error: (error) => {
-        console.error('Errore durante il caricamento delle attività:', error);
-      }
+      next: (data: Activity[]) => this.activityList = data,
+      error: (error) => console.error('Errore durante il caricamento delle attività:', error)
     });
   }
 
+  // Selezione attività
   onActivitySelected(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    const activityId = parseInt(target.value, 10);
-  
-    // Trova l'attività selezionata dalla lista delle attività
+    const activityId = parseInt((event.target as HTMLSelectElement).value, 10);
     const selectedActivity = this.activityList.find(activity => activity.id === activityId);
-  
     if (selectedActivity) {
-      // Imposta le date di inizio e fine dal'attività selezionata nel form del timesheet
-      const formattedStartDate = this.utils.formatDate(selectedActivity.dtstart, true);
-      const formattedEndDate = selectedActivity.dtend ? this.utils.formatDate(selectedActivity.dtend, true) : '';
-  
       this.timesheetForm.patchValue({
-        activityid: activityId,
-        dtstart: formattedStartDate,
-        dtend: formattedEndDate
+        activityId: activityId,
+        dtstart: this.utils.formatDate(selectedActivity.dtstart, true),
+        dtend: this.utils.formatDate(selectedActivity.dtend, true) || ''
       });
     }
   }
-  
 
+  // Selezione utente
   onUserSelected(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    const userId = parseInt(target.value, 10);
-    this.currentUser = userId;
-    this.timesheetForm.patchValue({ userid: userId });
+    const userId = parseInt((event.target as HTMLSelectElement).value, 10);
+    this.timesheetForm.patchValue({ userId: userId });
   }
 
+  // Gestione dell'invio del form
   onSubmit(): void {
     if (this.timesheetForm.valid) {
-      console.log('Form è valido, avvio il salvataggio...');
-      this.save(); // Chiama il metodo save per salvare il timesheet
+      this.save(); // Chiama il metodo di salvataggio
     } else {
-      console.log('Form non valido, impossibile salvare');
       this.timesheetForm.markAllAsTouched(); // Mostra gli errori di validazione
     }
   }
 
-  // Metodo per formattare le date nel formato 'dd/MM/yyyy HH:mm:ss' prima di inviare al backend
-  formatDateForBackend(date: Date): string {
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Mesi da 0 a 11
-    const year = date.getFullYear();
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
+  // Salva i dati del timesheet
+  private save(): void {
+    const timesheetData: TimeSheetDTO = {
+      ...this.timesheetForm.value,
+      dtstart: this.utils.formatDateForBackend(new Date(this.timesheetForm.value.dtstart)),
+      dtend: this.utils.formatDateForBackend(new Date(this.timesheetForm.value.dtend))
+    };
 
-    return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
-  }
-
-  save(): void {
-    const timesheetData = { ...this.timesheetForm.value };
-    
-    // Converti le date al formato corretto per il backend
-    timesheetData.dtstart = this.utils.formatDateForBackend(new Date(timesheetData.dtstart));
-    timesheetData.dtend = this.utils.formatDateForBackend(new Date(timesheetData.dtend));
-    
     if (timesheetData.id) {
       this.timesheetService.updateTimesheet(timesheetData).subscribe({
         next: () => {
@@ -150,10 +124,7 @@ export class TimesheetFormComponent implements OnInit {
           this.reload.emit(true);
           this.activeModal.close();
         },
-        error: (error: any) => {
-          console.error('Errore durante l\'aggiornamento', error);
-          alert('Errore durante l\'aggiornamento.');
-        }
+        error: (error) => this.handleError(error, 'Errore durante l\'aggiornamento')
       });
     } else {
       this.timesheetService.save(timesheetData).subscribe({
@@ -162,40 +133,40 @@ export class TimesheetFormComponent implements OnInit {
           this.reload.emit(true);
           this.activeModal.close();
         },
-        error: (error: any) => {
-          console.error('Errore durante la creazione', error);
-          alert('Errore durante la creazione.');
-        }
+        error: (error) => this.handleError(error, 'Errore durante la creazione')
       });
     }
   }
 
+  // Gestione degli errori
+  private handleError(error: any, message: string): void {
+    console.error(message, error);
+    alert(message);
+  }
+
+  // Reset del form
   resetForm(): void {
-    this.timesheet = { ...this.timesheetCopy };
-    this.timesheetForm.reset(this.timesheet);
+    this.timesheetForm.reset();
   }
 
   // Gestione dei dialog di conferma
-  cancelSave(): void {
-    this.showSaveDialog = false;
-  }
-
   confirmSave(): void {
-    this.showSaveDialog = true;
+    this.showSaveDialog = true; // Mostra il dialog di conferma salvataggio
   }
 
-  cancelDelete(): void {
-    this.showDeleteDialog = false;
+  cancelSave(): void {
+    this.showSaveDialog = false; // Chiudi il dialog di conferma salvataggio
   }
 
   confirmDelete(): void {
-    this.showDeleteDialog = true;
+    this.showDeleteDialog = true; // Mostra il dialog di conferma eliminazione
+  }
+
+  cancelDelete(): void {
+    this.showDeleteDialog = false; // Chiudi il dialog di conferma eliminazione
   }
 
   openDeleteConfirmation(): void {
-    this.showDeleteDialog = true;
+    this.showDeleteDialog = true; // Apri il dialogo di conferma eliminazione
   }
 }
-
-
-

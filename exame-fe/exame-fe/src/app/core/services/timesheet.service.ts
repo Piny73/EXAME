@@ -11,28 +11,44 @@ export class TimesheetService {
 
   constructor(private http: HttpClient) {}
 
-  // Metodo per ottenere tutti i timesheet
+  /**
+   * Ottiene tutti i Timesheet.
+   * @returns Un Observable che emette un array di TimeSheetDTO.
+   */
   getTimesheets(): Observable<TimeSheetDTO[]> {
-    return this.http.get<TimeSheetDTO[]>(`${this.baseUrl}`);
+    return this.http.get<TimeSheetDTO[]>(this.baseUrl);
   }
 
-  // Metodo per salvare un nuovo timesheet
+  /**
+   * Salva un nuovo Timesheet.
+   * @param timesheetData I dati del Timesheet da salvare.
+   * @returns Un Observable che emette il TimeSheetDTO creato.
+   */
   save(timesheetData: TimeSheetDTO): Observable<TimeSheetDTO> {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.http.post<TimeSheetDTO>(`${this.baseUrl}`, timesheetData, { headers });
+    return this.http.post<TimeSheetDTO>(this.baseUrl, timesheetData, { headers });
   }
 
-  // Metodo per aggiornare un timesheet esistente
+  /**
+   * Aggiorna un Timesheet esistente.
+   * @param timesheetData I dati del Timesheet da aggiornare.
+   * @returns Un Observable che emette il TimeSheetDTO aggiornato.
+   */
   updateTimesheet(timesheetData: TimeSheetDTO): Observable<TimeSheetDTO> {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     return this.http.put<TimeSheetDTO>(`${this.baseUrl}/${timesheetData.id}`, timesheetData, { headers });
   }
 
-  // Metodo per eliminare un timesheet
+  /**
+   * Elimina un Timesheet tramite ID.
+   * @param id L'ID del Timesheet da eliminare.
+   * @returns Un Observable che completa senza emettere valori.
+   */
   deleteTimesheet(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 }
+
 
 
 

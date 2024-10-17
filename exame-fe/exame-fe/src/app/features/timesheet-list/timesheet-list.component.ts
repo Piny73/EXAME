@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { TimesheetService } from '../../core/services/timesheet.service';
 import { TimeSheetDTO } from '../../core/models/timesheet.model';
 import { finalize } from 'rxjs/operators';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap'; // Importa NgbModal per il modal
-import { TimesheetFormComponent } from '../timesheet-list/timesheet-form/timesheet-form.component'; // Importa il TimesheetFormComponent
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { TimesheetFormComponent } from './timesheet-form/timesheet-form.component';
 
 @Component({
   selector: 'app-timesheet-list',
@@ -19,7 +19,7 @@ export class TimesheetListComponent implements OnInit {
 
   constructor(
     private timesheetService: TimesheetService,
-    private modalService: NgbModal // Inietta NgbModal per gestire il modal
+    private modalService: NgbModal
   ) {}
 
   ngOnInit(): void {
@@ -27,7 +27,7 @@ export class TimesheetListComponent implements OnInit {
   }
 
   // Carica i timesheet dal servizio
-  loadTimesheets(): void {
+  private loadTimesheets(): void {
     this.loading = true;
     this.errorMessage = '';
     this.timesheetService.getTimesheets().pipe(
@@ -46,22 +46,8 @@ export class TimesheetListComponent implements OnInit {
   // Apre il modal per aggiungere o modificare un timesheet
   openTimesheetModal(timesheet?: TimeSheetDTO): void {
     const modalRef = this.modalService.open(TimesheetFormComponent, { size: 'lg' });
-  
-    // Se viene passato un timesheet, modificalo; altrimenti, crea un nuovo timesheet
-    if (timesheet) {
-      modalRef.componentInstance.timesheet = { ...timesheet }; // Clona il timesheet per evitare modifiche dirette
-    } else {
-      // Inizializza un nuovo timesheet vuoto
-      modalRef.componentInstance.timesheet = {
-        id: null,
-        userid: null,
-        activityid: null,
-        dtstart: '',
-        dtend: '',
-        detail: ''
-      };
-    }
-  
+    modalRef.componentInstance.timesheet = timesheet ? { ...timesheet } : this.createEmptyTimeSheet();
+
     // Ricarica la lista dei timesheet quando il modal è chiuso
     modalRef.componentInstance.reload.subscribe((shouldReload: boolean) => {
       if (shouldReload) {
@@ -69,7 +55,19 @@ export class TimesheetListComponent implements OnInit {
       }
     });
   }
-  
+
+  // Crea un nuovo timesheet vuoto
+  private createEmptyTimeSheet(): TimeSheetDTO {
+    return {
+      id: 0, // ID iniziale per un nuovo timesheet
+      userId: null, // Non specificare un ID utente per un nuovo timesheet
+      activityId: null, // Non specificare un ID attività per un nuovo timesheet
+      dtstart: null, // Imposta null per le date di inizio e fine
+      dtend: null,
+      detail: '', // Dettagli vuoti per un nuovo timesheet
+      hoursPerDay: {} // Inizializza hoursPerDay come un oggetto vuoto
+    };
+  }
 
   // Conferma l'eliminazione di un timesheet
   confirmDelete(timesheet: TimeSheetDTO): void {
