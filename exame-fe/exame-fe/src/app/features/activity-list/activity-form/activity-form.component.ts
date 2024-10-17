@@ -45,7 +45,7 @@ export class ActivityFormComponent implements OnInit {
       ownerid: [0, Validators.required],
       dtstart: ['', Validators.required],
       dtend: [''],
-      enable: [false]
+      enable: [false] // Assicurati che 'enable' sia presente con un valore di default (false)
     });
   }
 
@@ -96,14 +96,23 @@ export class ActivityFormComponent implements OnInit {
 
   // Salva i dati dell'attività (crea o aggiorna)
   save(): void {
-    const formattedDateStart = new Date(this.activityForm.value.dtstart).toISOString();
-    const formattedDateEnd = this.activityForm.value.dtend ? new Date(this.activityForm.value.dtend).toISOString() : null;
+    // Recupera le date dal form
+    const dtstart = this.activityForm.value.dtstart ? new Date(this.activityForm.value.dtstart) : null;
+    const dtend = this.activityForm.value.dtend ? new Date(this.activityForm.value.dtend) : null;
 
+    // Converte le date per preservare l'ora locale e rimuovi i secondi
+    const formattedDateStart = dtstart ? new Date(dtstart.getTime() - dtstart.getTimezoneOffset() * 60000).toISOString().slice(0, 16) : null;
+    const formattedDateEnd = dtend ? new Date(dtend.getTime() - dtend.getTimezoneOffset() * 60000).toISOString().slice(0, 16) : null;
+
+    // Aggiungi esplicitamente il campo enable al payload
     const activityData = {
       ...this.activityForm.value,
       dtstart: formattedDateStart,
-      dtend: formattedDateEnd
+      dtend: formattedDateEnd,
+      enable: this.activityForm.value.enable !== undefined ? this.activityForm.value.enable : false
     };
+
+    console.log('Payload inviato:', activityData);  // Verifica il payload che viene inviato
 
     if (activityData.id) {
       this.updateActivity(activityData);
@@ -161,6 +170,7 @@ export class ActivityFormComponent implements OnInit {
       console.warn('ID non valido per la cancellazione:', this.activity.id);
     }
   }
+
   // Resetta i dati dell'attività
   private resetActivityData(): void {
     this.activity = new Activity();
@@ -226,3 +236,5 @@ export class ActivityFormComponent implements OnInit {
     });
   }
 }
+
+

@@ -10,14 +10,16 @@
     <form [formGroup]="activityForm" (ngSubmit)="onSubmit()">
       <div class="form-container">
         <!-- Hidden Fields -->
-        <input type="hidden" formControlName="id">
+        <input type="hidden" id="id" name="id" formControlName="id">
 
         <!-- Form Fields -->
-        <div class="row mb-3"><h5 class="mb-4">Crea Nuova Attività</h5>
+        <div class="row mb-3">
+          <h5 class="mb-4">Crea Nuova Attività</h5>
+
           <!-- Descrizione -->
           <div class="col-md-6">
             <label for="description" class="form-label">Descrizione</label>
-            <input type="text" id="description" formControlName="description" class="form-control" placeholder="Descrizione">
+            <input type="text" id="description" name="description" formControlName="description" class="form-control" placeholder="Descrizione">
             <div *ngIf="activityForm.get('description')?.invalid && activityForm.get('description')?.touched" class="text-danger">
               Descrizione obbligatoria.
             </div>
@@ -39,7 +41,7 @@
           <!-- Data Inizio -->
           <div class="col-md-6">
             <label for="dtstart" class="form-label">Data Inizio</label>
-            <input type="datetime-local" id="dtstart" formControlName="dtstart" class="form-control">
+            <input type="datetime-local" id="dtstart" name="dtstart" formControlName="dtstart" class="form-control">
             <div *ngIf="activityForm.get('dtstart')?.invalid && activityForm.get('dtstart')?.touched" class="text-danger">
               Data Inizio obbligatoria.
             </div>
@@ -48,13 +50,13 @@
           <!-- Data Fine -->
           <div class="col-md-6">
             <label for="dtend" class="form-label">Data Fine</label>
-            <input type="datetime-local" id="dtend" formControlName="dtend" class="form-control">
+            <input type="datetime-local" id="dtend" name="dtend" formControlName="dtend" class="form-control">
           </div>
 
           <!-- Checkbox Abilita -->
           <div class="d-flex align-items-center col-md-6">
             <div>
-              <input type="checkbox" id="enable" formControlName="enable" class="form-check-input">
+              <input type="checkbox" id="enable" name="enable" formControlName="enable" class="form-check-input">
               <label for="enable" class="form-check-label ms-2">Abilita</label>
             </div>
           </div>
@@ -94,4 +96,5 @@
     </div>
   </div>
 </div>
+
 

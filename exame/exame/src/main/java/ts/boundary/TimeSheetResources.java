@@ -16,13 +16,13 @@ import java.util.List;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.core.UriInfo;
-import org.eclipse.microprofile.openapi.annotations.Operation;
-import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
-import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import ts.store.ActivityStore;
 import ts.store.TimeSheetStore;
 import ts.store.UserStore;
 import javax.ws.rs.NotFoundException;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 @Path("timesheet")
@@ -45,9 +45,6 @@ public class TimeSheetResources {
     @Context
     UriInfo uriInfo;
 
-    /**
-     * REST service to retrieve a list of timesheets associated with a specific user.
-     */
     @GET
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)

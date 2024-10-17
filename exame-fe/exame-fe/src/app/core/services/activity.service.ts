@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { ApiService } from '../api.service';
 import { Activity } from '../models/activity.model';
 import { HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +22,8 @@ export class ActivityService {
   save(activity: Activity): Observable<Activity> {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     return this.apiService.post<Activity>(this.endpoint, activity, headers).pipe(
-      map(response => response)
+      tap(response => this.activityList.push(response)), // Aggiorna la cache
+      catchError(this.handleError)
     );
   }
 
@@ -30,14 +31,21 @@ export class ActivityService {
   update(activity: Activity): Observable<Activity> {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     return this.apiService.put<Activity>(`${this.endpoint}/${activity.id}`, activity, headers).pipe(
-      map(response => response)
+      tap(response => {
+        const index = this.activityList.findIndex(a => a.id === activity.id);
+        if (index > -1) {
+          this.activityList[index] = response; // Aggiorna la cache
+        }
+      }),
+      catchError(this.handleError)
     );
   }
 
   // Metodo per eliminare un'attività tramite il suo ID
   delete(activityId: number): Observable<void> {
     return this.apiService.delete<void>(`${this.endpoint}/${activityId}`).pipe(
-      map(() => console.log(`Attività eliminata con ID: ${activityId}`))
+      tap(() => this.activityList = this.activityList.filter(a => a.id !== activityId)), // Rimuovi dalla cache
+      catchError(this.handleError)
     );
   }
 
@@ -45,10 +53,8 @@ export class ActivityService {
   fill(): Observable<Activity[]> {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     return this.apiService.get<Activity[]>(this.endpoint, headers).pipe(
-      map((response: Activity[]) => {
-        this.activityList = response; // Aggiorna la lista locale delle attività
-        return response;
-      })
+      tap((response: Activity[]) => this.activityList = response), // Aggiorna la lista locale delle attività
+      catchError(this.handleError)
     );
   }
 
@@ -66,7 +72,7 @@ export class ActivityService {
   getByIdFromBackend(id: number): Observable<Activity> {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     return this.apiService.get<Activity>(`${this.endpoint}/${id}`, headers).pipe(
-      map(response => response)
+      catchError(this.handleError)
     );
   }
 
@@ -83,5 +89,11 @@ export class ActivityService {
   // Cancella l'attività selezionata
   clearActivitySelected(): void {
     this.activitySelected = {} as Activity; // Resetta l'attività selezionata
+  }
+
+  // Metodo di gestione degli errori
+  private handleError(error: any): Observable<never> {
+    console.error('Errore durante la chiamata HTTP:', error);
+    return throwError(() => new Error('Errore nella comunicazione con il server.'));
   }
 }
