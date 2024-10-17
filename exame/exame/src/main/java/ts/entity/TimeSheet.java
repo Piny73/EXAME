@@ -25,11 +25,11 @@ import ts.entity.adapter.LocalDateTimeAdapter;
 public class TimeSheet extends BaseEntity {
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "activity_id")
+    @JoinColumn(name = "activity_id", nullable = false)
     private Activity activity;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @JsonbTypeAdapter(LocalDateTimeAdapter.class)
@@ -45,24 +45,16 @@ public class TimeSheet extends BaseEntity {
     @NotBlank
     @Column(nullable = false)
     private String detail;
-    
+
+    @Column(nullable = false)
     private boolean enable;
 
-    // Nuovo campo per memorizzare le ore giornaliere
+    // ElementCollection per gestire la mappa delle ore per giorno
     @ElementCollection(fetch = FetchType.EAGER)
     @Column(name = "hours_per_day")
-    private Map<LocalDate, Integer> hoursPerDay = new HashMap<>();
+    private Map<String, Integer> hoursPerDay = new HashMap<>();
 
-    // Getter e Setter per la nuova mappa
-    public Map<LocalDate, Integer> getHoursPerDay() {
-        return hoursPerDay;
-    }
-
-    public void setHoursPerDay(Map<LocalDate, Integer> hoursPerDay) {
-        this.hoursPerDay = hoursPerDay;
-    }
-
-    // Altri getter e setter
+    // Getters e Setters
 
     public Activity getActivity() {
         return activity;
@@ -111,5 +103,13 @@ public class TimeSheet extends BaseEntity {
     public void setEnable(boolean enable) {
         this.enable = enable;
     }
-    
+
+    public Map<String, Integer> getHoursPerDay() {
+        return hoursPerDay;
+    }
+
+    public void setHoursPerDay(Map<String, Integer> hoursPerDay) {
+        this.hoursPerDay = hoursPerDay;
+    }
+
 }

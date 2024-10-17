@@ -1,9 +1,11 @@
 package ts.boundary;
 
 import ts.boundary.mapping.TimeSheetDTO;
-import ts.entity.Activity;
 import ts.entity.TimeSheet;
 import ts.entity.User;
+import ts.store.ActivityStore;
+import ts.store.TimeSheetStore;
+import ts.store.UserStore;
 
 import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
@@ -16,67 +18,60 @@ import java.util.List;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.core.UriInfo;
-import ts.store.ActivityStore;
-import ts.store.TimeSheetStore;
-import ts.store.UserStore;
 import javax.ws.rs.NotFoundException;
+
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 @Path("timesheet")
-@Tag(name = "TimeSheet Management", description = "TimeSheet Business Logic")
+@Tag(name = "TimeSheet Management", description = "Gestione dei fogli presenze")
 @PermitAll
 public class TimeSheetResources {
 
     @Inject
-    private UserStore storeuser;
+    private UserStore storeUser;
 
     @Inject
-    private ActivityStore storeactivity;
+    private ActivityStore storeActivity;
 
     @Inject
-    private TimeSheetStore storets;
+    private TimeSheetStore storeTimeSheet;
 
     @Context
-    ResourceContext rc;
+    ResourceContext resourceContext;
 
     @Context
     UriInfo uriInfo;
 
     @GET
-    @Path("{id}")
+    @Path("{userId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Restituisce l'elenco di TimeSheet di un Utente")
+    @Operation(description = "Restituisce l'elenco dei TimeSheet di un Utente")
     @APIResponses({
         @APIResponse(responseCode = "200", description = "Elenco ritornato con successo"),
-        @APIResponse(responseCode = "404", description = "Elenco non trovato")
+        @APIResponse(responseCode = "404", description = "Utente non trovato")
     })
-    @PermitAll
-    public List<TimeSheetDTO> all(@PathParam("id") Long id, @DefaultValue("1") @QueryParam("page") int page, @DefaultValue("10") @QueryParam("size") int size) {
-        User found = storeuser.find(id).orElseThrow(() -> new NotFoundException("Timesheet non trovato. id=" + id));
+    public List<TimeSheetDTO> getAllTimeSheets(@PathParam("userId") Long userId) {
+        User user = storeUser.find(userId).orElseThrow(() -> new NotFoundException("Utente non trovato. ID=" + userId));
 
-        List<TimeSheetDTO> tsList = new ArrayList<>();
-
-        storets.all(id).forEach(e -> {
-            TimeSheetDTO ts = new TimeSheetDTO();
-            ts.id = e.getId();
-            ts.activityid = e.getActivity().getId();
-            ts.userid = e.getUser().getId();
-            ts.dtstart = e.getDtstart();
-            ts.dtend = e.getDtend();
-            ts.detail = e.getDetail();
-            ts.hoursPerDay = e.getHoursPerDay();  // Aggiungi le ore per giorno
-            tsList.add(ts);
+        List<TimeSheetDTO> timeSheetList = new ArrayList<>();
+        storeTimeSheet.all(userId).forEach(e -> {
+            TimeSheetDTO timeSheetDTO = new TimeSheetDTO();
+            timeSheetDTO.id = e.getId();
+            timeSheetDTO.activityid = e.getActivity().getId();
+            timeSheetDTO.userid = e.getUser().getId();
+            timeSheetDTO.dtstart = e.getDtstart();
+            timeSheetDTO.dtend = e.getDtend();
+            timeSheetDTO.detail = e.getDetail();
+            timeSheetDTO.hoursPerDay = e.getHoursPerDay();  // Usa la mappa di tipo String
+            timeSheetList.add(timeSheetDTO);
         });
 
-        return tsList;
+        return timeSheetList;
     }
 
-    /**
-     * REST service to create a new timesheet.
-     */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -85,35 +80,26 @@ public class TimeSheetResources {
         @APIResponse(responseCode = "201", description = "Timesheet creato con successo"),
         @APIResponse(responseCode = "404", description = "Creazione fallita")
     })
-    @PermitAll
     public Response createTimeSheet(@Valid TimeSheetDTO entity) {
+        TimeSheet timeSheet = new TimeSheet();
+        
+        timeSheet.setActivity(storeActivity.find(entity.activityid)
+            .orElseThrow(() -> new NotFoundException("Attività non trovata: " + entity.activityid)));
+        timeSheet.setUser(storeUser.find(entity.userid)
+            .orElseThrow(() -> new NotFoundException("Utente non trovato: " + entity.userid)));
+        timeSheet.setDetail(entity.detail);
+        timeSheet.setDtstart(entity.dtstart);
+        timeSheet.setDtend(entity.dtend);
+        timeSheet.setHoursPerDay(entity.hoursPerDay);  // Usa la mappa di tipo String
 
-        TimeSheet ts = new TimeSheet();
-        ts.setActivity(storeactivity.find(entity.activityid)
-            .orElseThrow(() -> new NotFoundException("Activity not found: " + entity.activityid)));
-        ts.setUser(storeuser.find(entity.userid)
-            .orElseThrow(() -> new NotFoundException("User not found: " + entity.userid)));
-        ts.setDetail(entity.detail);
+        storeTimeSheet.save(timeSheet);
 
-        // Eredita dtstart e dtend dall'activity
-        ts.setDtstart(ts.getActivity().getDtstart());
-        ts.setDtend(ts.getActivity().getDtend());
-
-        // Imposta le ore per giorno
-        ts.setHoursPerDay(entity.hoursPerDay);
-
-        // Salva il timesheet nel database
-        storets.save(ts);
-
-        // Restituisci l'id generato
-        entity.id = ts.getId();
+        entity.id = timeSheet.getId();
         return Response.status(Response.Status.CREATED).entity(entity).build();
     }
 
-    /**
-     * REST service to update an existing timesheet.
-     */
     @PUT
+    @Path("{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Aggiorna un TimeSheet esistente")
@@ -121,27 +107,21 @@ public class TimeSheetResources {
         @APIResponse(responseCode = "200", description = "Timesheet aggiornato con successo"),
         @APIResponse(responseCode = "404", description = "Aggiornamento fallito")
     })
-    public Response updateTimeSheet(@Valid TimeSheetDTO entity) {
-        TimeSheet found = storets.find(entity.id)
-            .orElseThrow(() -> new NotFoundException("TimeSheet not found: " + entity.id));
+    public Response updateTimeSheet(@PathParam("id") Long id, @Valid TimeSheetDTO entity) {
+        TimeSheet found = storeTimeSheet.find(id)
+            .orElseThrow(() -> new NotFoundException("TimeSheet non trovato: " + id));
 
-        // Imposta nuovamente i dettagli dell'utente e della descrizione
-        found.setUser(storeuser.find(entity.userid)
-            .orElseThrow(() -> new NotFoundException("User not found: " + entity.userid)));
+        found.setUser(storeUser.find(entity.userid)
+            .orElseThrow(() -> new NotFoundException("Utente non trovato: " + entity.userid)));
         found.setDetail(entity.detail);
+        found.setDtstart(entity.dtstart);
+        found.setDtend(entity.dtend);
+        found.setHoursPerDay(entity.hoursPerDay);  // Usa la mappa di tipo String
 
-        // Aggiorna la mappa delle ore giornaliere
-        found.setHoursPerDay(entity.hoursPerDay);
-
-        // Salva i cambiamenti nel database
-        storets.update(found);
-
-        return Response.status(Response.Status.OK).build();
+        storeTimeSheet.update(found);
+        return Response.status(Response.Status.OK).entity(entity).build();
     }
 
-    /**
-     * REST service to delete a timesheet by ID.
-     */
     @DELETE
     @Path("{id}")
     @Operation(description = "Cancella un TimeSheet tramite l'ID")
@@ -149,15 +129,11 @@ public class TimeSheetResources {
         @APIResponse(responseCode = "200", description = "Timesheet cancellato con successo"),
         @APIResponse(responseCode = "404", description = "Eliminazione fallita")
     })
-    @Produces(MediaType.APPLICATION_JSON)
-    @PermitAll
     public Response deleteTimeSheet(@PathParam("id") Long id) {
-        TimeSheet found = storets.find(id)
-            .orElseThrow(() -> new NotFoundException("TimeSheet non trovato. id=" + id));
+        TimeSheet found = storeTimeSheet.find(id)
+            .orElseThrow(() -> new NotFoundException("TimeSheet non trovato. ID=" + id));
 
-        found.setCanceled(true);
-        storets.remove(found);
-
-        return Response.status(Response.Status.OK).build();
+        storeTimeSheet.remove(found);
+        return Response.status(Response.Status.NO_CONTENT).build();
     }
 }
