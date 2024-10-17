@@ -73,26 +73,39 @@ export class TimesheetFormComponent implements OnInit {
     });
   }
 
-// Carica la lista delle attività dal backend
-loadActivities(): void {
-  this.activityService.fill().subscribe({
-    next: (data: Activity[]) => {
-      this.activityList = data;
-      console.log('Attività caricate:', this.activityList); // Per debugging
-    },
-    error: (error) => {
-      console.error('Errore durante il caricamento delle attività:', error);
-    }
-  });
-}
-
+  // Carica la lista delle attività dal backend
+  loadActivities(): void {
+    this.activityService.fill().subscribe({
+      next: (data: Activity[]) => {
+        this.activityList = data;
+        console.log('Attività caricate:', this.activityList); // Per debugging
+      },
+      error: (error) => {
+        console.error('Errore durante il caricamento delle attività:', error);
+      }
+    });
+  }
 
   onActivitySelected(event: Event): void {
     const target = event.target as HTMLSelectElement;
     const activityId = parseInt(target.value, 10);
-    this.currentActivity = activityId;
-    this.timesheetForm.patchValue({ activityid: activityId });
+  
+    // Trova l'attività selezionata dalla lista delle attività
+    const selectedActivity = this.activityList.find(activity => activity.id === activityId);
+  
+    if (selectedActivity) {
+      // Imposta le date di inizio e fine dal'attività selezionata nel form del timesheet
+      const formattedStartDate = this.utils.formatDate(selectedActivity.dtstart, true);
+      const formattedEndDate = selectedActivity.dtend ? this.utils.formatDate(selectedActivity.dtend, true) : '';
+  
+      this.timesheetForm.patchValue({
+        activityid: activityId,
+        dtstart: formattedStartDate,
+        dtend: formattedEndDate
+      });
+    }
   }
+  
 
   onUserSelected(event: Event): void {
     const target = event.target as HTMLSelectElement;
@@ -110,7 +123,8 @@ loadActivities(): void {
       this.timesheetForm.markAllAsTouched(); // Mostra gli errori di validazione
     }
   }
-    // Metodo per formattare le date nel formato 'dd/MM/yyyy HH:mm:ss' prima di inviare al backend
+
+  // Metodo per formattare le date nel formato 'dd/MM/yyyy HH:mm:ss' prima di inviare al backend
   formatDateForBackend(date: Date): string {
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0'); // Mesi da 0 a 11
@@ -155,10 +169,6 @@ loadActivities(): void {
       });
     }
   }
-  
-  
-  
-  
 
   resetForm(): void {
     this.timesheet = { ...this.timesheetCopy };
@@ -186,5 +196,6 @@ loadActivities(): void {
     this.showDeleteDialog = true;
   }
 }
+
 
 

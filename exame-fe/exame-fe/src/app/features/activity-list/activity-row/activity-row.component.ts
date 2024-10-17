@@ -50,6 +50,7 @@ export class ActivityRowComponent implements OnInit {
     if (this.activitySelected) {
       this._copyActivitySelected = { ...this.activitySelected };
       this._selected = this.activity.id === this.activitySelected.id;
+      this.activityService.setActivitySelected(this.activitySelected);
 
     }
   }

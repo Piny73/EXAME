@@ -13,7 +13,7 @@
           <select id="activity" formControlName="activityid" class="form-control" (change)="onActivitySelected($event)">
             <option *ngFor="let activity of activityList" [value]="activity.id">{{ activity.description }}</option>
           </select>
-        </div>
+        </div>        
         <div class="col-md-6">
           <label for="user" class="form-label">Utente</label>
           <select id="user" formControlName="userid" class="form-control" (change)="onUserSelected($event)">
@@ -86,7 +86,3 @@
     </div>
   </div>
 </div>
-
-
-
-  

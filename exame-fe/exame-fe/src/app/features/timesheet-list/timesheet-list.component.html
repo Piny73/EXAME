@@ -1,6 +1,4 @@
-<!-- Timesheet List -->
 <div class="timesheet-list-container">
-  
   <!-- Se ci sono timesheets, mostra la tabella -->
   <div *ngIf="timesheets.length > 0; else noTimesheets">
     <table class="table table-striped">
@@ -24,7 +22,8 @@
           <td>{{ timesheet.dtend | date: 'dd/MM/yyyy' }}</td> <!-- Data Fine -->
           <td>{{ timesheet.detail }}</td> <!-- Dettaglio -->
           <td>
-            <button class="btn btn-sm btn-primary me-2" (click)="editTimesheet(timesheet)">Modifica</button>
+            <!-- Usa il modal per aprire il form per la modifica -->
+            <button class="btn btn-sm btn-primary me-2" (click)="openTimesheetModal(timesheet)">Modifica</button>
             <button class="btn btn-sm btn-danger" (click)="confirmDelete(timesheet)">Elimina</button>
           </td>
         </tr>

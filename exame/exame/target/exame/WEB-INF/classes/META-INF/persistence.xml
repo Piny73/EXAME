@@ -7,7 +7,7 @@
       <property name="javax.persistence.schema-generation.scripts.action" value="none"/>
       <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL8Dialect"/>
       <property name="hibernate.hbm2ddl.auto" value="validate"/>
-      <property name="javax.persistence.schema-generation.database.action" value="create"/>
+      <property name="javax.persistence.schema-generation.database.action" value="validate"/>
     </properties>
   </persistence-unit>
 </persistence>

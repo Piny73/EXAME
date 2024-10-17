@@ -26,8 +26,11 @@ public class ActivityDTO {
 
     public boolean enable;
 
+    // Aggiunto il campo ownerName per restituire il nome del proprietario
+    public String ownerName;
+
     @Override
     public String toString() {
-        return "ActivityDTO{" + "id=" + id + ", description=" + description + ", dtstart=" + dtstart + ", dtend=" + dtend + ", ownerid=" + ownerid + ", enable=" + enable + '}';
+        return "ActivityDTO{" + "id=" + id + ", description=" + description + ", dtstart=" + dtstart + ", dtend=" + dtend + ", ownerid=" + ownerid + ", enable=" + enable + ", ownerName=" + ownerName + '}';
     }
 }

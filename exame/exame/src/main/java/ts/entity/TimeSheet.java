@@ -4,43 +4,65 @@
  */
 package ts.entity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import javax.json.bind.annotation.JsonbTypeAdapter;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import ts.entity.adapter.ActivityTypeAdapter;
-import ts.entity.adapter.UserTypeAdapter;
+import ts.entity.adapter.LocalDateTimeAdapter;
 
 @Entity
 @Table(name = "timesheet")
-public class TimeSheet extends  BaseEntity{
-    
-    @JsonbTypeAdapter(ActivityTypeAdapter.class)
+public class TimeSheet extends BaseEntity {
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "activity_id")
     private Activity activity;
 
-    @JsonbTypeAdapter(UserTypeAdapter.class)
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id")
     private User user;
-    
+
+    @JsonbTypeAdapter(LocalDateTimeAdapter.class)
     @NotNull
     @Column(nullable = false)
     private LocalDateTime dtstart;
-    
+
+    @JsonbTypeAdapter(LocalDateTimeAdapter.class)
     @NotNull
     @Column(nullable = false)
     private LocalDateTime dtend;
 
     @NotBlank
-    @Column(nullable = false)    
+    @Column(nullable = false)
     private String detail;
+    
+    private boolean enable;
+
+    // Nuovo campo per memorizzare le ore giornaliere
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Column(name = "hours_per_day")
+    private Map<LocalDate, Integer> hoursPerDay = new HashMap<>();
+
+    // Getter e Setter per la nuova mappa
+    public Map<LocalDate, Integer> getHoursPerDay() {
+        return hoursPerDay;
+    }
+
+    public void setHoursPerDay(Map<LocalDate, Integer> hoursPerDay) {
+        this.hoursPerDay = hoursPerDay;
+    }
+
+    // Altri getter e setter
 
     public Activity getActivity() {
         return activity;
@@ -81,6 +103,13 @@ public class TimeSheet extends  BaseEntity{
     public void setDetail(String detail) {
         this.detail = detail;
     }
-      
-  
+
+    public boolean isEnable() {
+        return enable;
+    }
+
+    public void setEnable(boolean enable) {
+        this.enable = enable;
+    }
+    
 }

@@ -8,8 +8,10 @@ export class Activity {
   ownerid!: number; // ID del proprietario dell'attività
   enable!: boolean; // Stato dell'attività (attiva o disabilitata)
   owner!: User | null; // Riferimento all'utente proprietario, può essere null
+  ownerName?: string; // Campo per il nome del proprietario
 
   constructor(init?: Partial<Activity>) {
     Object.assign(this, init);
   }
 }
+

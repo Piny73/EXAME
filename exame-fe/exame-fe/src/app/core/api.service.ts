@@ -39,6 +39,9 @@ export class ApiService {
   // Metodo DELETE generico
   delete<T>(endpoint: string, headers?: HttpHeaders): Observable<T> {
     const url = `${this.baseUrl}/${endpoint}`;
+
+    console.log(url);
+
     return this.http.delete<T>(url, { headers }).pipe(
       catchError(this.handleError)
     );

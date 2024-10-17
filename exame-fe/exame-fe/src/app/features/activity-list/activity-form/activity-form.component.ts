@@ -18,8 +18,8 @@ export class ActivityFormComponent implements OnInit {
   showSaveDialog = false;
   showDeleteDialog = false;
 
-  @Input() activity!: Activity; // Riceve l'attività da modificare o una nuova da creare
-  @Output() reload = new EventEmitter<boolean>(); // Evento per ricaricare la lista
+  @Input() activity!: Activity; // Riceve l'attività selezionata o una nuova da creare
+  @Output() reload = new EventEmitter<boolean>(); // Evento per ricaricare la lista delle attività
 
   constructor(
     private fb: FormBuilder,
@@ -29,51 +29,72 @@ export class ActivityFormComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.initializeForm(); // Inizializza il FormGroup
+    this.initializeForm();
 
-    // Se è un'attività esistente, popola il form con i dati dell'attività
+    // Popola il form con i dati dell'attività se già esistente
     if (this.activity) {
       this.populateFormWithActivityData();
     }
   }
 
-  // Inizializza il FormGroup con i campi e le loro validazioni
+  // Inizializzazione del FormGroup
   private initializeForm(): void {
     this.activityForm = this.fb.group({
-      id: [0], // Imposta l'ID a 0 per default (nuova attività)
-      description: ['', Validators.required], // Campo descrizione obbligatorio
-      ownerid: [0, Validators.required], // Campo proprietario obbligatorio
-      dtstart: ['', Validators.required], // Campo data di inizio obbligatorio
-      dtend: [''], // Campo data di fine opzionale
-      enable: [false] // Impostazione predefinita a false
+      id: [0],
+      description: ['', Validators.required],
+      ownerid: [0, Validators.required],
+      dtstart: ['', Validators.required],
+      dtend: [''],
+      enable: [false]
     });
   }
 
-  // Popola il form con i dati dell'attività passata come input
+  // Popola il form con i dati dell'attività selezionata
   private populateFormWithActivityData(): void {
     this.currentOwner = this.activity.ownerid;
-    this.activity.dtstart = this.activity.dtstart ? this.utils.formatDate(this.activity.dtstart, true) : null;
-    this.activity.dtend = this.activity.dtend ? this.utils.formatDate(this.activity.dtend, true) : null;
+
+    // Se l'attività ha un proprietario, assegna il nome
+    if (this.activity.owner) {
+      this.activity.ownerName = this.activity.owner.name;
+    } else {
+      this.activity.ownerName = 'N/A';
+    }
+
+    // Usa UtilsService per formattare le date
+    this.activity.dtstart = this.activity.dtstart 
+      ? this.utils.formatDateForBackend(new Date(this.activity.dtstart)) 
+      : null;
+
+    this.activity.dtend = this.activity.dtend 
+      ? this.utils.formatDateForBackend(new Date(this.activity.dtend)) 
+      : null;
+
     this.activityCopy = { ...this.activity };
 
-    // Aggiorna il form con i valori dell'attività esistente
+    // Aggiorna il form con i dati dell'attività
     this.activityForm.patchValue({
-      ...this.activity
+      id: this.activity.id,
+      description: this.activity.description,
+      ownerid: this.activity.ownerid,
+      dtstart: this.activity.dtstart,
+      dtend: this.activity.dtend,
+      enable: this.activity.enable,
+      ownerName: this.activity.ownerName
     });
   }
 
   // Gestisce l'invio del form
   onSubmit(): void {
     if (this.activityForm.valid) {
-      this.activity = this.activityForm.value; // Assegna i valori dal form all'attività
-      this.showSaveDialog = true; // Mostra il dialog di conferma per il salvataggio
+      this.activity = this.activityForm.value;
+      this.showSaveDialog = true; // Mostra dialog di conferma
     } else {
       console.log('Form non valido');
-      this.activityForm.markAllAsTouched(); // Mostra i messaggi di errore
+      this.activityForm.markAllAsTouched(); // Mostra errori
     }
   }
 
-  // Salva i dati dell'attività
+  // Salva i dati dell'attività (crea o aggiorna)
   save(): void {
     const formattedDateStart = new Date(this.activityForm.value.dtstart).toISOString();
     const formattedDateEnd = this.activityForm.value.dtend ? new Date(this.activityForm.value.dtend).toISOString() : null;
@@ -95,7 +116,7 @@ export class ActivityFormComponent implements OnInit {
   private updateActivity(activityData: any): void {
     this.activityService.update(activityData).subscribe({
       next: () => {
-        console.log('Aggiornamento completato con successo');
+        console.log('Aggiornamento completato');
         this.reload.emit(true); // Ricarica la lista
         this.activeModal.close(); // Chiudi il modal
       },
@@ -110,7 +131,7 @@ export class ActivityFormComponent implements OnInit {
   private createActivity(activityData: any): void {
     this.activityService.save(activityData).subscribe({
       next: () => {
-        console.log('Creazione completata con successo');
+        console.log('Creazione completata');
         this.reload.emit(true); // Ricarica la lista
         this.activeModal.close(); // Chiudi il modal
       },
@@ -124,23 +145,22 @@ export class ActivityFormComponent implements OnInit {
   // Elimina l'attività corrente
   deleteObject(): void {
     if (this.activity.id && this.activity.id !== 0) {
+      console.log('Tentativo di eliminazione dell\'attività con ID:', this.activity.id); // Verifica l'ID
       this.activityService.delete(this.activity.id).subscribe({
         next: () => {
-          console.log('Eliminazione completata con successo');
-          this.resetActivityData();
-          this.reload.emit(true); // Ricarica la lista
-          this.activeModal.close(); // Chiudi il modal
+          console.log('Attività eliminata con successo:', this.activity.id);
+          this.reload.emit(true);    // Ricarica la lista delle attività
+          this.activeModal.close();  // Chiudi il modal
         },
         error: (error: any) => {
-          console.error('Errore durante l\'eliminazione', error);
+          console.error('Errore durante l\'eliminazione dell\'attività', error);
           alert('Errore durante l\'eliminazione.');
         }
       });
     } else {
-      console.warn('Tentativo di eliminazione con ID non valido:', this.activity.id);
+      console.warn('ID non valido per la cancellazione:', this.activity.id);
     }
   }
-
   // Resetta i dati dell'attività
   private resetActivityData(): void {
     this.activity = new Activity();
@@ -150,24 +170,24 @@ export class ActivityFormComponent implements OnInit {
 
   // Conferma il salvataggio
   confirmSave(): void {
-    this.showSaveDialog = false; // Nasconde il dialog di salvataggio
-    this.save(); // Chiama la funzione di salvataggio
+    this.showSaveDialog = false;
+    this.save();
   }
 
   // Conferma l'eliminazione
   confirmDelete(): void {
-    this.showDeleteDialog = false; // Nasconde il dialog di eliminazione
-    this.deleteObject(); // Chiama la funzione di eliminazione
+    this.showDeleteDialog = false;
+    this.deleteObject();
   }
 
   // Annulla il salvataggio
   cancelSave(): void {
-    this.showSaveDialog = false; // Nasconde il dialog di salvataggio
+    this.showSaveDialog = false;
   }
 
   // Annulla l'eliminazione
   cancelDelete(): void {
-    this.showDeleteDialog = false; // Nasconde il dialog di eliminazione
+    this.showDeleteDialog = false;
   }
 
   // Resetta il form
@@ -182,7 +202,7 @@ export class ActivityFormComponent implements OnInit {
     });
   }
 
-  // Gestisce la selezione del proprietario (ownerid)
+  // Gestisce la selezione del proprietario
   onOwnerSelected(event: any): void {
     this.activityForm.patchValue({ ownerid: event });
     console.log('Proprietario selezionato:', event);
@@ -194,7 +214,8 @@ export class ActivityFormComponent implements OnInit {
   }
 
   // Aggiungi la gestione della selezione di un'attività
-  selectActivity(activity: Activity) {
+  selectActivity(activity: Activity): void {
+    console.log('Attività selezionata:', activity); // Verifica che l'attività includa ownerid
     this.activityForm.patchValue({
       id: activity.id,
       description: activity.description,

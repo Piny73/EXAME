@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { TimesheetService } from '../../core/services/timesheet.service';
 import { TimeSheetDTO } from '../../core/models/timesheet.model';
 import { finalize } from 'rxjs/operators';
-import { Router } from '@angular/router';  // Importa il router per la navigazione
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap'; // Importa NgbModal per il modal
+import { TimesheetFormComponent } from '../timesheet-list/timesheet-form/timesheet-form.component'; // Importa il TimesheetFormComponent
 
 @Component({
   selector: 'app-timesheet-list',
@@ -18,7 +19,7 @@ export class TimesheetListComponent implements OnInit {
 
   constructor(
     private timesheetService: TimesheetService,
-    private router: Router  // Inietta il Router per la navigazione
+    private modalService: NgbModal // Inietta NgbModal per gestire il modal
   ) {}
 
   ngOnInit(): void {
@@ -42,15 +43,33 @@ export class TimesheetListComponent implements OnInit {
     );
   }
 
-  // Aggiunge un nuovo timesheet, navigando alla pagina del modulo
-  addNewTimesheet(): void {
-    this.router.navigate(['/timesheets/new']);  // Naviga al modulo per aggiungere un nuovo timesheet
+  // Apre il modal per aggiungere o modificare un timesheet
+  openTimesheetModal(timesheet?: TimeSheetDTO): void {
+    const modalRef = this.modalService.open(TimesheetFormComponent, { size: 'lg' });
+  
+    // Se viene passato un timesheet, modificalo; altrimenti, crea un nuovo timesheet
+    if (timesheet) {
+      modalRef.componentInstance.timesheet = { ...timesheet }; // Clona il timesheet per evitare modifiche dirette
+    } else {
+      // Inizializza un nuovo timesheet vuoto
+      modalRef.componentInstance.timesheet = {
+        id: null,
+        userid: null,
+        activityid: null,
+        dtstart: '',
+        dtend: '',
+        detail: ''
+      };
+    }
+  
+    // Ricarica la lista dei timesheet quando il modal è chiuso
+    modalRef.componentInstance.reload.subscribe((shouldReload: boolean) => {
+      if (shouldReload) {
+        this.loadTimesheets(); // Ricarica i timesheet dopo il salvataggio/modifica
+      }
+    });
   }
-
-  // Modifica un timesheet esistente
-  editTimesheet(timesheet: TimeSheetDTO): void {
-    this.router.navigate(['/timesheets/edit', timesheet.id]);  // Naviga al modulo per modificare il timesheet
-  }
+  
 
   // Conferma l'eliminazione di un timesheet
   confirmDelete(timesheet: TimeSheetDTO): void {

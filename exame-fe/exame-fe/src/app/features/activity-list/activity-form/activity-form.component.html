@@ -1,6 +1,6 @@
 <div class="form-container">
   <!-- Elenco delle Attività -->
-  <h5 class="mb-4">Elenco Attività</h5>
+  <h5 class="mb-4">Elenco Attività Presenti</h5>
   <div class="table-responsive">
     <app-activity-list (onSelectActivity)="selectActivity($event)"></app-activity-list>
   </div>
@@ -13,7 +13,7 @@
         <input type="hidden" formControlName="id">
 
         <!-- Form Fields -->
-        <div class="row mb-3">
+        <div class="row mb-3"><h5 class="mb-4">Crea Nuova Attività</h5>
           <!-- Descrizione -->
           <div class="col-md-6">
             <label for="description" class="form-label">Descrizione</label>
@@ -39,7 +39,7 @@
           <!-- Data Inizio -->
           <div class="col-md-6">
             <label for="dtstart" class="form-label">Data Inizio</label>
-            <input type="date" id="dtstart" formControlName="dtstart" class="form-control">
+            <input type="datetime-local" id="dtstart" formControlName="dtstart" class="form-control">
             <div *ngIf="activityForm.get('dtstart')?.invalid && activityForm.get('dtstart')?.touched" class="text-danger">
               Data Inizio obbligatoria.
             </div>
@@ -48,7 +48,7 @@
           <!-- Data Fine -->
           <div class="col-md-6">
             <label for="dtend" class="form-label">Data Fine</label>
-            <input type="date" id="dtend" formControlName="dtend" class="form-control">
+            <input type="datetime-local" id="dtend" formControlName="dtend" class="form-control">
           </div>
 
           <!-- Checkbox Abilita -->
@@ -94,3 +94,4 @@
     </div>
   </div>
 </div>
+
