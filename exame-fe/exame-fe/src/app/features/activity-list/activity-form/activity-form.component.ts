@@ -245,5 +245,3 @@ private populateFormWithActivityData(): void {
     });
   }
 }
-
-

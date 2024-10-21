@@ -12,8 +12,6 @@ import { TimesheetFormComponent } from './timesheet-form/timesheet-form.componen
 })
 export class TimesheetListComponent implements OnInit {
   timesheets: TimeSheetDTO[] = [];
-  showDeleteDialog = false;
-  timesheetToDelete: TimeSheetDTO | null = null;
   loading = false; // Indicatore di caricamento
   errorMessage = ''; // Messaggio di errore
 
@@ -59,45 +57,13 @@ export class TimesheetListComponent implements OnInit {
   // Crea un nuovo timesheet vuoto
   private createEmptyTimeSheet(): TimeSheetDTO {
     return {
-      id: 0, // ID iniziale per un nuovo timesheet
-      userId: null, // Non specificare un ID utente per un nuovo timesheet
-      activityId: null, // Non specificare un ID attività per un nuovo timesheet
-      dtstart: null, // Imposta null per le date di inizio e fine
+      id: 0,
+      userId: null,
+      activityId: null,
+      dtstart: null,
       dtend: null,
-      detail: '', // Dettagli vuoti per un nuovo timesheet
-      hoursPerDay: {} // Inizializza hoursPerDay come un oggetto vuoto
+      detail: '',
+      hoursPerDay: {}
     };
-  }
-
-  // Conferma l'eliminazione di un timesheet
-  confirmDelete(timesheet: TimeSheetDTO): void {
-    this.timesheetToDelete = timesheet;
-    this.showDeleteDialog = true;
-  }
-
-  // Elimina un timesheet confermato
-  deleteTimesheet(): void {
-    if (this.timesheetToDelete) {
-      this.loading = true;
-      this.errorMessage = '';
-      this.timesheetService.deleteTimesheet(this.timesheetToDelete.id).pipe(
-        finalize(() => this.loading = false)
-      ).subscribe(
-        () => {
-          this.loadTimesheets();  // Ricarica i timesheet dopo l'eliminazione
-          this.cancelDelete();    // Chiudi il dialogo di conferma
-        },
-        (error: any) => {
-          this.errorMessage = 'Errore durante l\'eliminazione del timesheet.';
-          console.error(this.errorMessage, error);
-        }
-      );
-    }
-  }
-
-  // Annulla il dialogo di eliminazione
-  cancelDelete(): void {
-    this.timesheetToDelete = null;
-    this.showDeleteDialog = false;
   }
 }

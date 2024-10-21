@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TimesheetService } from '../../../core/services/timesheet.service';
 import { UtilsService } from '../../../core/utils.service';
@@ -16,14 +16,14 @@ import { ActivityService } from '../../../core/services/activity.service';
 })
 export class TimesheetFormComponent implements OnInit {
   timesheetForm!: FormGroup;
-  private timesheetCopy!: TimeSheetDTO;
+  timesheets: TimeSheetDTO[] = [];
   userList: User[] = [];
   activityList: Activity[] = [];
-  showSaveDialog = false; // Variabile per il dialogo di salvataggio
-  showDeleteDialog = false; // Variabile per il dialogo di eliminazione
+  showSaveDialog = false; 
+  showDeleteDialog = false; 
 
-  @Input() timesheet!: TimeSheetDTO; // Riceve il timesheet da modificare o uno nuovo da creare
-  @Output() reload = new EventEmitter<boolean>(); // Evento per ricaricare la lista
+  @Input() timesheet!: TimeSheetDTO; 
+  @Output() reload = new EventEmitter<boolean>(); 
 
   constructor(
     private fb: FormBuilder,
@@ -35,33 +35,48 @@ export class TimesheetFormComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.initializeForm(); // Inizializza il form
+    this.initializeForm(); 
     if (this.timesheet) {
-      this.loadTimesheetData(); // Carica i dati del timesheet se esistente
+      this.loadTimesheetData(); 
     }
-    this.loadUsers(); // Carica la lista degli utenti
-    this.loadActivities(); // Carica la lista delle attività
+    this.loadTimesheets();
+    this.loadUsers(); 
+    this.loadActivities(); 
   }
 
   // Inizializza il FormGroup
   private initializeForm(): void {
     this.timesheetForm = this.fb.group({
       id: [null],
-      userId: [null, Validators.required], // Corretto per l'uso del camelCase
-      activityId: [null, Validators.required], // Corretto per l'uso del camelCase
+      userId: [null, Validators.required],
+      activityId: [null, Validators.required],
       dtstart: ['', Validators.required],
       dtend: [''],
-      detail: ['', [Validators.required, Validators.maxLength(500)]]
+      detail: ['', [Validators.required, Validators.maxLength(500)]],
+      hoursPerDay: this.fb.array([]) // Inizializza come FormArray
     });
   }
 
   // Carica i dati del timesheet se esistente
   private loadTimesheetData(): void {
-    this.timesheetCopy = { ...this.timesheet };
     this.timesheetForm.patchValue({
       ...this.timesheet,
       dtstart: this.utils.formatDate(this.timesheet.dtstart, true),
-      dtend: this.utils.formatDate(this.timesheet.dtend, true)
+      dtend: this.utils.formatDate(this.timesheet.dtend, true),
+      detail: this.timesheet.detail
+    });
+
+    this.resetHoursPerDay();
+    for (const [date, hours] of Object.entries(this.timesheet.hoursPerDay)) {
+      this.addHoursPerDay(date, hours);
+    }
+  }
+
+  // Carica la lista dei timesheet
+  private loadTimesheets(): void {
+    this.timesheetService.getTimesheets().subscribe({
+      next: (data: TimeSheetDTO[]) => this.timesheets = data,
+      error: (error) => console.error('Errore durante il caricamento dei timesheet:', error)
     });
   }
 
@@ -81,92 +96,131 @@ export class TimesheetFormComponent implements OnInit {
     });
   }
 
-  // Selezione attività
-  onActivitySelected(event: Event): void {
-    const activityId = parseInt((event.target as HTMLSelectElement).value, 10);
-    const selectedActivity = this.activityList.find(activity => activity.id === activityId);
-    if (selectedActivity) {
-      this.timesheetForm.patchValue({
-        activityId: activityId,
-        dtstart: this.utils.formatDate(selectedActivity.dtstart, true),
-        dtend: this.utils.formatDate(selectedActivity.dtend, true) || ''
-      });
+  // Aggiunge un nuovo giorno alle ore lavorate
+  addHoursPerDay(date?: string, hours?: number): void {
+    const hoursFormGroup = this.fb.group({
+      date: [date || '', Validators.required],
+      hours: [hours || '', [Validators.required, Validators.min(0)]]
+    });
+    (this.timesheetForm.get('hoursPerDay') as FormArray).push(hoursFormGroup);
+  }
+
+  // Rimuove un giorno alle ore lavorate
+  removeHoursPerDay(index: number): void {
+    const hoursArray = this.timesheetForm.get('hoursPerDay') as FormArray;
+    if (hoursArray.length > 0) {
+      hoursArray.removeAt(index);
     }
   }
 
-  // Selezione utente
-  onUserSelected(event: Event): void {
-    const userId = parseInt((event.target as HTMLSelectElement).value, 10);
-    this.timesheetForm.patchValue({ userId: userId });
+  // Resetta l'array hoursPerDay
+  private resetHoursPerDay(): void {
+    const hoursArray = this.timesheetForm.get('hoursPerDay') as FormArray;
+    while (hoursArray.length) {
+      hoursArray.removeAt(0);
+    }
   }
 
   // Gestione dell'invio del form
   onSubmit(): void {
     if (this.timesheetForm.valid) {
-      this.save(); // Chiama il metodo di salvataggio
+      const timesheetData: TimeSheetDTO = {
+        ...this.timesheetForm.value,
+        dtstart: this.utils.formatDateForBackend(new Date(this.timesheetForm.value.dtstart)),
+        dtend: this.utils.formatDateForBackend(new Date(this.timesheetForm.value.dtend)),
+        hoursPerDay: this.getHoursPerDay()
+      };
+
+      if (timesheetData.id) {
+        this.timesheetService.updateTimesheet(timesheetData).subscribe({
+          next: () => {
+            console.log('Aggiornamento completato con successo');
+            this.reload.emit(true);
+            this.activeModal.close();
+          },
+          error: (error) => this.handleError(error, 'Errore durante l\'aggiornamento')
+        });
+      } else {
+        this.timesheetService.save(timesheetData).subscribe({
+          next: () => {
+            console.log('Creazione completata con successo');
+            this.reload.emit(true);
+            this.activeModal.close();
+          },
+          error: (error) => this.handleError(error, 'Errore durante la creazione')
+        });
+      }
     } else {
-      this.timesheetForm.markAllAsTouched(); // Mostra gli errori di validazione
+      this.timesheetForm.markAllAsTouched();
     }
   }
 
-  // Salva i dati del timesheet
-  private save(): void {
-    const timesheetData: TimeSheetDTO = {
-      ...this.timesheetForm.value,
-      dtstart: this.utils.formatDateForBackend(new Date(this.timesheetForm.value.dtstart)),
-      dtend: this.utils.formatDateForBackend(new Date(this.timesheetForm.value.dtend))
-    };
-
-    if (timesheetData.id) {
-      this.timesheetService.updateTimesheet(timesheetData).subscribe({
-        next: () => {
-          console.log('Aggiornamento completato con successo');
-          this.reload.emit(true);
-          this.activeModal.close();
-        },
-        error: (error) => this.handleError(error, 'Errore durante l\'aggiornamento')
-      });
-    } else {
-      this.timesheetService.save(timesheetData).subscribe({
-        next: () => {
-          console.log('Creazione completata con successo');
-          this.reload.emit(true);
-          this.activeModal.close();
-        },
-        error: (error) => this.handleError(error, 'Errore durante la creazione')
-      });
-    }
+  // Estrae le ore per giorno dall'array di controlli
+  private getHoursPerDay(): { [date: string]: number } {
+    const hours = this.timesheetForm.get('hoursPerDay') as FormArray;
+    const result: { [date: string]: number } = {};
+    hours.controls.forEach(control => {
+      const date = control.get('date')?.value;
+      const hoursWorked = control.get('hours')?.value;
+      if (date && hoursWorked) {
+        result[date] = hoursWorked;
+      }
+    });
+    return result;
   }
 
-  // Gestione degli errori
+  // Funzione per selezionare un timesheet
+  selectTimesheet(timesheet: TimeSheetDTO): void {
+    this.timesheetForm.patchValue({
+      id: timesheet.id,
+      userId: timesheet.userId,
+      activityId: timesheet.activityId,
+      dtstart: timesheet.dtstart,
+      dtend: timesheet.dtend,
+      detail: timesheet.detail
+    });
+  }
+
+  // Gestione della selezione dell'attività
+  onActivitySelected(activity: Activity): void {
+    this.timesheetForm.patchValue({
+      activityId: activity.id,
+      dtstart: activity.dtstart,
+      dtend: activity.dtend
+    });
+  }
+
+  // Gestione del reset del form
+  resetForm(): void {
+    this.timesheetForm.reset();
+    this.resetHoursPerDay();
+  }
+
+  // Gestione della conferma di salvataggio
+  confirmSave(): void {
+    this.showSaveDialog = true;
+  }
+
+  cancelSave(): void {
+    this.showSaveDialog = false;
+  }
+
+  // Gestione della conferma di cancellazione
+  confirmDelete(): void {
+    this.showDeleteDialog = true;
+  }
+
+  cancelDelete(): void {
+    this.showDeleteDialog = false;
+  }
+
+  openDeleteConfirmation(): void {
+    this.showDeleteDialog = true;
+  }
+
   private handleError(error: any, message: string): void {
     console.error(message, error);
     alert(message);
   }
-
-  // Reset del form
-  resetForm(): void {
-    this.timesheetForm.reset();
-  }
-
-  // Gestione dei dialog di conferma
-  confirmSave(): void {
-    this.showSaveDialog = true; // Mostra il dialog di conferma salvataggio
-  }
-
-  cancelSave(): void {
-    this.showSaveDialog = false; // Chiudi il dialog di conferma salvataggio
-  }
-
-  confirmDelete(): void {
-    this.showDeleteDialog = true; // Mostra il dialog di conferma eliminazione
-  }
-
-  cancelDelete(): void {
-    this.showDeleteDialog = false; // Chiudi il dialog di conferma eliminazione
-  }
-
-  openDeleteConfirmation(): void {
-    this.showDeleteDialog = true; // Apri il dialogo di conferma eliminazione
-  }
 }
+
