@@ -25,7 +25,7 @@ export class ActivityListComponent implements OnInit, OnChanges {
 
   title = 'Activity';
   activityData$!: Observable<ActivityData>;
-  selectedActivities: Activity[] = []; // Gestione della selezione multipla di attività
+  selectedActivity: Activity | null = null; // Traccia l'attività selezionata singolarmente
 
   constructor(private activityService: ActivityService) {}
 
@@ -34,10 +34,10 @@ export class ActivityListComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    const cur_up = changes['isUpdated'].currentValue != null ? changes['isUpdated'].currentValue : 0;
-    const cur_last = changes['isUpdated'].previousValue != null ? changes['isUpdated'].previousValue : 0;
+    const currentUpdate = changes['isUpdated']?.currentValue ?? 0;
+    const previousUpdate = changes['isUpdated']?.previousValue ?? 0;
 
-    if (cur_up > cur_last) {
+    if (currentUpdate > previousUpdate) {
       this.load();
     }
   }
@@ -61,18 +61,15 @@ export class ActivityListComponent implements OnInit, OnChanges {
     );
   }
 
-  // Selezione di una attività
-  selectActivity(activity: Activity): void {
-    if (activity.owner) {
-      activity.ownerid = activity.owner.id; // Imposta correttamente l'ownerid dall'oggetto owner
-    }
-    this.onSelectActivity.emit(activity); // Emissione dell'evento con l'attività selezionata
-  }
+// Metodo per gestire la selezione di un'attività
+selectActivity(activity: Activity): void {
+  this.onSelectActivity.emit(activity); // Emette l'evento di selezione con l'attività selezionata
+}
 
   // Metodo per cancellare una singola attività
   deleteActivity(activity: Activity): void {
     if (activity.id && confirm(`Sei sicuro di voler eliminare l'attività "${activity.description}" di "${activity.ownerName}"?`)) {
-      console.log('Eliminazione dell\'attività con ID:', activity.id); // Debug per verificare l'ID
+      console.log('Eliminazione dell\'attività con ID:', activity.id);
       this.activityService.delete(activity.id).subscribe({
         next: () => {
           console.log('Attività eliminata con successo:', activity.id);
@@ -94,7 +91,7 @@ export class ActivityListComponent implements OnInit, OnChanges {
 
   // Apertura per creare una nuova attività
   openNew(content: TemplateRef<any>){
-    this.selectedActivities = []; // Svuota la selezione per una nuova attività
+    this.selectedActivity = null; // Resetta la selezione per una nuova attività
     this.modalService.open(content, { size: 'xl' });
   }
 

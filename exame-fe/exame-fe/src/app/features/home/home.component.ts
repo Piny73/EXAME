@@ -104,18 +104,27 @@ export class HomeComponent {
 
   // Funzione per aprire il modal per la creazione o modifica di un timesheet
   openTimesheetModal(timesheet?: TimeSheet) {
+    console.log("entriamo nel metodo")
     const modalRef = this.modalService.open(TimesheetFormComponent, { size: 'lg' });
+    console.log("modalRef ok")
 
     if (timesheet) {
       modalRef.componentInstance.timesheet = { ...timesheet }; // Clona il timesheet per evitare modifiche in-place
+      console.log("entriamo nell'if")
     } else {
       modalRef.componentInstance.timesheet = new TimeSheet(); // Inizializza un nuovo timesheet vuoto
+      console.log("entriamo nell'else")
     }
 
     // Subscrivi al risultato del form, ricarica l'elenco dei timesheet se uno viene creato o aggiornato
     modalRef.componentInstance.reload.subscribe((shouldReload: boolean) => {
+      console.log("secondo modale")
       if (shouldReload) {
         this.loadData(); // Ricarica i dati se richiesto
+        console.log("entriamo nell'if")
+      }
+      else {
+        console.log("entriamo nell'else")
       }
     });
 
@@ -123,6 +132,7 @@ export class HomeComponent {
       () => {
         // Modal chiuso, ricarica i timesheet se necessario
         this.loadData();
+        console.log("ultimo modale arrow")
       },
       (reason) => {
         console.log('Modal chiuso senza salvataggio:', reason);

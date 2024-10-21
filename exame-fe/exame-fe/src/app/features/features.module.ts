@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from '../shared/shared.module';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModalModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 // Componenti specifici del modulo
 import { LoginComponent } from './login/login.component';
@@ -31,7 +31,8 @@ import { TimesheetFormComponent } from './timesheet-list/timesheet-form/timeshee
     CommonModule,
     ReactiveFormsModule,
     SharedModule,
-    NgbModule
+    NgbModule,
+    NgbModalModule
   ],
   exports: [
     LoginComponent,
@@ -46,5 +47,3 @@ import { TimesheetFormComponent } from './timesheet-list/timesheet-form/timeshee
   ]
 })
 export class FeaturesModule { }
-
-

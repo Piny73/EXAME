@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, Output, OnInit } from '@angular/core';
 import { TimesheetService } from '../../core/services/timesheet.service';
 import { TimeSheetDTO } from '../../core/models/timesheet.model';
-import { finalize } from 'rxjs/operators';
+import { ActivityService } from '../../core/services/activity.service';
+import { UserService } from '../../core/services/user.service';
+import { finalize, forkJoin } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TimesheetFormComponent } from './timesheet-form/timesheet-form.component';
 
@@ -15,8 +17,12 @@ export class TimesheetListComponent implements OnInit {
   loading = false; // Indicatore di caricamento
   errorMessage = ''; // Messaggio di errore
 
+  @Output() timesheetSelected = new EventEmitter<TimeSheetDTO>(); // Output per emettere evento di selezione
+
   constructor(
     private timesheetService: TimesheetService,
+    private activityService: ActivityService,
+    private userService: UserService,
     private modalService: NgbModal
   ) {}
 
@@ -28,17 +34,33 @@ export class TimesheetListComponent implements OnInit {
   private loadTimesheets(): void {
     this.loading = true;
     this.errorMessage = '';
-    this.timesheetService.getTimesheets().pipe(
-      finalize(() => this.loading = false) // Disabilita l'indicatore di caricamento alla fine della richiesta
-    ).subscribe(
-      (data: TimeSheetDTO[]) => {
-        this.timesheets = data;
-      },
-      (error: any) => {
-        this.errorMessage = 'Errore durante il caricamento dei timesheet.';
-        console.error(this.errorMessage, error);
-      }
-    );
+
+    // Carica i timesheet, le attività e gli utenti contemporaneamente
+    forkJoin({
+      timesheets: this.timesheetService.getTimesheets(),
+      activities: this.activityService.fill(),
+      users: this.userService.getAllUsers()
+    })
+      .pipe(finalize(() => (this.loading = false))) // Disabilita l'indicatore di caricamento alla fine della richiesta
+      .subscribe(
+        ({ timesheets, activities, users }) => {
+          // Mappa i dati aggiungendo la descrizione dell'attività e il nome del proprietario
+          this.timesheets = timesheets.map(timesheet => ({
+            ...timesheet,
+            activityDescription: activities.find(a => a.id === timesheet.activityId)?.description || 'N/A',
+            ownerName: users.find(u => u.id === timesheet.userId)?.name || 'N/A'
+          }));
+        },
+        error => {
+          this.errorMessage = 'Errore durante il caricamento dei timesheet.';
+          console.error(this.errorMessage, error);
+        }
+      );
+  }
+
+  // Seleziona una timesheet ed emette l'evento
+  selectTimesheet(timesheet: TimeSheetDTO): void {
+    this.timesheetSelected.emit(timesheet); // Emette l'evento di selezione
   }
 
   // Apre il modal per aggiungere o modificare un timesheet

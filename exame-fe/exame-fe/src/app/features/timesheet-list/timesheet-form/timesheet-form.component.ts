@@ -15,15 +15,16 @@ import { ActivityService } from '../../../core/services/activity.service';
   styleUrls: ['./timesheet-form.component.css']
 })
 export class TimesheetFormComponent implements OnInit {
+
   timesheetForm!: FormGroup;
   timesheets: TimeSheetDTO[] = [];
   userList: User[] = [];
   activityList: Activity[] = [];
-  showSaveDialog = false; 
-  showDeleteDialog = false; 
+  showSaveDialog = false;
+  showDeleteDialog = false;
 
-  @Input() timesheet!: TimeSheetDTO; 
-  @Output() reload = new EventEmitter<boolean>(); 
+  @Input() timesheet: TimeSheetDTO | null = null;
+  @Output() reload = new EventEmitter<boolean>();
 
   constructor(
     private fb: FormBuilder,
@@ -35,30 +36,41 @@ export class TimesheetFormComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.initializeForm(); 
+    this.initializeForm();
     if (this.timesheet) {
-      this.loadTimesheetData(); 
+      this.loadTimesheetData();
     }
     this.loadTimesheets();
-    this.loadUsers(); 
-    this.loadActivities(); 
+    this.loadUsers();
+    this.loadActivities();
   }
 
-  // Inizializza il FormGroup
-  private initializeForm(): void {
-    this.timesheetForm = this.fb.group({
-      id: [null],
-      userId: [null, Validators.required],
-      activityId: [null, Validators.required],
-      dtstart: ['', Validators.required],
-      dtend: [''],
-      detail: ['', [Validators.required, Validators.maxLength(500)]],
-      hoursPerDay: this.fb.array([]) // Inizializza come FormArray
-    });
+  // Getter per accedere al FormArray hoursPerDay
+  get hoursPerDayControls() {
+    return (this.timesheetForm.get('hoursPerDay') as FormArray).controls;
   }
+
+// Inizializzazione del FormGroup
+private initializeForm(): void {
+  this.timesheetForm = this.fb.group({
+    id: [null],
+    userId: [null, Validators.required],
+    activityId: [null, Validators.required],
+    activityDescription: [''], // Aggiungi il controllo per la descrizione dell'attività
+    dtstart: ['', Validators.required],
+    dtend: [''],
+    detail: ['', [Validators.required, Validators.maxLength(500)]],
+    hoursPerDay: this.fb.array([]) // Inizializza come FormArray
+  });
+}
 
   // Carica i dati del timesheet se esistente
   private loadTimesheetData(): void {
+    if (!this.timesheet) {
+      console.warn('Timesheet non valido o non trovato');
+      return;
+    }
+
     this.timesheetForm.patchValue({
       ...this.timesheet,
       dtstart: this.utils.formatDate(this.timesheet.dtstart, true),
@@ -67,12 +79,12 @@ export class TimesheetFormComponent implements OnInit {
     });
 
     this.resetHoursPerDay();
-    for (const [date, hours] of Object.entries(this.timesheet.hoursPerDay)) {
+    const hoursPerDay = this.timesheet.hoursPerDay || {};
+    for (const [date, hours] of Object.entries(hoursPerDay)) {
       this.addHoursPerDay(date, hours);
     }
   }
 
-  // Carica la lista dei timesheet
   private loadTimesheets(): void {
     this.timesheetService.getTimesheets().subscribe({
       next: (data: TimeSheetDTO[]) => this.timesheets = data,
@@ -80,7 +92,6 @@ export class TimesheetFormComponent implements OnInit {
     });
   }
 
-  // Carica la lista degli utenti
   private loadUsers(): void {
     this.userService.getAllUsers().subscribe({
       next: (data: User[]) => this.userList = data,
@@ -88,7 +99,6 @@ export class TimesheetFormComponent implements OnInit {
     });
   }
 
-  // Carica la lista delle attività
   private loadActivities(): void {
     this.activityService.fill().subscribe({
       next: (data: Activity[]) => this.activityList = data,
@@ -96,7 +106,6 @@ export class TimesheetFormComponent implements OnInit {
     });
   }
 
-  // Aggiunge un nuovo giorno alle ore lavorate
   addHoursPerDay(date?: string, hours?: number): void {
     const hoursFormGroup = this.fb.group({
       date: [date || '', Validators.required],
@@ -105,7 +114,6 @@ export class TimesheetFormComponent implements OnInit {
     (this.timesheetForm.get('hoursPerDay') as FormArray).push(hoursFormGroup);
   }
 
-  // Rimuove un giorno alle ore lavorate
   removeHoursPerDay(index: number): void {
     const hoursArray = this.timesheetForm.get('hoursPerDay') as FormArray;
     if (hoursArray.length > 0) {
@@ -113,7 +121,6 @@ export class TimesheetFormComponent implements OnInit {
     }
   }
 
-  // Resetta l'array hoursPerDay
   private resetHoursPerDay(): void {
     const hoursArray = this.timesheetForm.get('hoursPerDay') as FormArray;
     while (hoursArray.length) {
@@ -121,7 +128,6 @@ export class TimesheetFormComponent implements OnInit {
     }
   }
 
-  // Gestione dell'invio del form
   onSubmit(): void {
     if (this.timesheetForm.valid) {
       const timesheetData: TimeSheetDTO = {
@@ -132,27 +138,35 @@ export class TimesheetFormComponent implements OnInit {
       };
 
       if (timesheetData.id) {
-        this.timesheetService.updateTimesheet(timesheetData).subscribe({
-          next: () => {
-            console.log('Aggiornamento completato con successo');
-            this.reload.emit(true);
-            this.activeModal.close();
-          },
-          error: (error) => this.handleError(error, 'Errore durante l\'aggiornamento')
-        });
+        this.updateTimesheet(timesheetData);
       } else {
-        this.timesheetService.save(timesheetData).subscribe({
-          next: () => {
-            console.log('Creazione completata con successo');
-            this.reload.emit(true);
-            this.activeModal.close();
-          },
-          error: (error) => this.handleError(error, 'Errore durante la creazione')
-        });
+        this.createTimesheet(timesheetData);
       }
     } else {
       this.timesheetForm.markAllAsTouched();
     }
+  }
+
+  private updateTimesheet(timesheetData: TimeSheetDTO): void {
+    this.timesheetService.updateTimesheet(timesheetData).subscribe({
+      next: () => {
+        console.log('Aggiornamento completato con successo');
+        this.reload.emit(true);
+        this.activeModal.close();
+      },
+      error: (error) => this.handleError(error, 'Errore durante l\'aggiornamento')
+    });
+  }
+
+  private createTimesheet(timesheetData: TimeSheetDTO): void {
+    this.timesheetService.save(timesheetData).subscribe({
+      next: () => {
+        console.log('Creazione completata con successo');
+        this.reload.emit(true);
+        this.activeModal.close();
+      },
+      error: (error) => this.handleError(error, 'Errore durante la creazione')
+    });
   }
 
   // Estrae le ore per giorno dall'array di controlli
@@ -162,15 +176,26 @@ export class TimesheetFormComponent implements OnInit {
     hours.controls.forEach(control => {
       const date = control.get('date')?.value;
       const hoursWorked = control.get('hours')?.value;
-      if (date && hoursWorked) {
+      if (date && hoursWorked !== null && hoursWorked !== undefined) {
         result[date] = hoursWorked;
       }
     });
     return result;
   }
-
-  // Funzione per selezionare un timesheet
-  selectTimesheet(timesheet: TimeSheetDTO): void {
+    // Aggiungi la gestione della selezione di un'attività
+    selectActivity(activity: Activity): void {
+      console.log('Attività selezionata:', activity); // Verifica che l'attività includa ownerid
+      this.timesheetForm.patchValue({
+        id: activity.id,
+        description: activity.description,
+        ownerid: activity.ownerid,
+        dtstart: activity.dtstart,
+        dtend: activity.dtend,
+        enable: activity.enable
+      });
+    }
+  // Metodo per gestire la selezione della timesheet
+  selectTimeSheet(timesheet: TimeSheetDTO): void {
     this.timesheetForm.patchValue({
       id: timesheet.id,
       userId: timesheet.userId,
@@ -179,35 +204,30 @@ export class TimesheetFormComponent implements OnInit {
       dtend: timesheet.dtend,
       detail: timesheet.detail
     });
+
+    this.resetHoursPerDay();
+    for (const [date, hours] of Object.entries(timesheet.hoursPerDay || {})) {
+      this.addHoursPerDay(date, hours);
+    }
   }
 
-  // Gestione della selezione dell'attività
-  onActivitySelected(activity: Activity): void {
-    this.timesheetForm.patchValue({
-      activityId: activity.id,
-      dtstart: activity.dtstart,
-      dtend: activity.dtend
-    });
-  }
-
-  // Gestione del reset del form
   resetForm(): void {
     this.timesheetForm.reset();
     this.resetHoursPerDay();
   }
 
-  // Gestione della conferma di salvataggio
   confirmSave(): void {
-    this.showSaveDialog = true;
+    this.showSaveDialog = false;
+    this.onSubmit();
   }
 
   cancelSave(): void {
     this.showSaveDialog = false;
   }
 
-  // Gestione della conferma di cancellazione
   confirmDelete(): void {
-    this.showDeleteDialog = true;
+    this.showDeleteDialog = false;
+    this.deleteTimesheet();
   }
 
   cancelDelete(): void {
@@ -218,9 +238,21 @@ export class TimesheetFormComponent implements OnInit {
     this.showDeleteDialog = true;
   }
 
+  private deleteTimesheet(): void {
+    if (this.timesheet?.id) {
+      this.timesheetService.deleteTimesheet(this.timesheet.id).subscribe({
+        next: () => {
+          console.log('Eliminazione completata con successo');
+          this.reload.emit(true);
+          this.activeModal.close();
+        },
+        error: (error) => this.handleError(error, 'Errore durante l\'eliminazione')
+      });
+    }
+  }
+
   private handleError(error: any, message: string): void {
     console.error(message, error);
     alert(message);
   }
 }
-

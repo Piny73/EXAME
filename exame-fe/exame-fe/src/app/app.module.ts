@@ -7,11 +7,11 @@ import { AppComponent } from './app.component';
 import { FeaturesModule } from './features/features.module'; // Importa FeaturesModule
 import { LayoutModule } from './layout/layout.module';
 import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
+import { CommonModule } from '@angular/common';
 
 @NgModule({
   declarations: [
     AppComponent
-    // Rimosso TimesheetFormComponent da qui
   ],
   imports: [
     BrowserModule,
@@ -21,7 +21,9 @@ import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
     FormsModule,
     FeaturesModule, // Importa correttamente il modulo delle funzionalità
     HttpClientModule,
-    NgbModalModule
+    NgbModalModule,
+    CommonModule,
+
   ],
   providers: [
     provideHttpClient(withFetch()),

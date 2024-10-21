@@ -1,1 +1,21 @@
-<p>timesheet-row works!</p>
+<tr>
+  <td>
+    <input 
+      type="radio" 
+      name="selectedTimesheet" 
+      (change)="selectTimesheet()">
+  </td>
+  <td>{{ timesheet.id }}</td>
+  <td>{{ timesheet.activityId }}</td> <!-- Mostra l'ID dell'attività -->
+  <td>{{ timesheet.userId }}</td> <!-- Mostra l'ID dell'utente -->
+  <td>{{ timesheet.dtstart | date: 'dd/MM/yyyy HH:mm' }}</td> <!-- Data Inizio -->
+  <td>{{ timesheet.dtend | date: 'dd/MM/yyyy HH:mm' }}</td> <!-- Data Fine -->
+  <td>{{ timesheet.detail }}</td> <!-- Dettaglio -->
+  <td>
+    <div *ngFor="let entry of timesheet.hoursPerDay | keyvalue">
+      <span>{{ entry.key }}: {{ entry.value }} ore</span>
+    </div>
+  </td>
+</tr>
+
+
