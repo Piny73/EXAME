@@ -167,17 +167,20 @@ public Response getUserTimeSheets(@PathParam("userId") String userId) {
     }
 
     @DELETE
-    @Path("{id}")
-    @Operation(description = "Cancella un TimeSheet tramite l'ID")
-    @APIResponses({
-        @APIResponse(responseCode = "200", description = "Timesheet cancellato con successo"),
-        @APIResponse(responseCode = "404", description = "Eliminazione fallita")
-    })
-    public Response deleteTimeSheet(@PathParam("id") Long id) {
-        TimeSheet found = storeTimeSheet.find(id)
-            .orElseThrow(() -> new NotFoundException("TimeSheet non trovato. ID=" + id));
+@Path("{id}")
+@Operation(description = "Cancella un TimeSheet impostando un flag 'canceled'")
+@APIResponses({
+    @APIResponse(responseCode = "200", description = "Timesheet cancellato con successo"),
+    @APIResponse(responseCode = "404", description = "Eliminazione fallita")
+})
+public Response deleteTimeSheet(@PathParam("id") Long id) {
+    TimeSheet found = storeTimeSheet.find(id)
+        .orElseThrow(() -> new NotFoundException("TimeSheet non trovato. ID=" + id));
 
-        storeTimeSheet.remove(found);
-        return Response.status(Response.Status.NO_CONTENT).build();
-    }
+    // Imposta il campo 'canceled' a true
+    found.setCanceled(true);
+    storeTimeSheet.update(found);
+
+    return Response.status(Response.Status.OK).build();
+}
 }

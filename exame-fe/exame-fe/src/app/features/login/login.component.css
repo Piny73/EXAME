@@ -7,6 +7,17 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     background-color: #d5e9fc;
   }
+  .content-background {
+    background-image: url('/assets/images/loginPage.png'); /* Percorso dell'immagine */
+    background-size: cover; /* Adatta l'immagine per coprire tutto lo spazio */
+    background-position: center; /* Centra l'immagine */
+    background-repeat: no-repeat; /* Evita la ripetizione dell'immagine */
+    min-height: calc(100vh - 200px); /* Altezza minima: 100vh meno l'altezza di header e footer */
+    padding: 20px; /* Padding opzionale per distanziare i contenuti */
+    display: flex; /* Usa flexbox per centrare il contenuto */
+    justify-content: center; /* Centra orizzontalmente il contenitore del login */
+    align-items: center; /* Centra verticalmente il contenitore del login */
+  }
   
   h2 {
     text-align: center;
@@ -36,4 +47,14 @@
     margin-top: 15px;
     text-align: center;
   }
+
+  .image-container {
+    text-align: center;
+  }
+  
+  .img-fluid {
+    max-width: 100%;
+    height: auto;
+  }
+  
   

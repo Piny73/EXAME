@@ -1,20 +1,30 @@
-import { Component } from '@angular/core';
+// navbar.component.ts
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+// Importa l'AuthService
+import { Observable } from 'rxjs';
+import { User } from '../../core/models/user.model';
+import { AuthService } from '../../core/auth.service';
+
+
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
-  styleUrl: './navbar.component.css'
+  styleUrls: ['./navbar.component.css']
 })
+export class NavbarComponent implements OnInit {
+  user$: Observable<User | null>; // Osservabile per ottenere lo stato dell'utente
 
-export class NavbarComponent {
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {
+    this.user$ = this.authService.user$; // Assegna l'osservabile dall'AuthService
+  }
+
+  ngOnInit(): void {}
 
   logout() {
-    // Esegui eventuali operazioni di pulizia, ad esempio rimuovere il token di autenticazione
-    localStorage.removeItem('authToken'); // Se stai usando il localStorage per salvare il token
-
+    // Chiama il metodo di logout dell'AuthService
+    this.authService.logout();
     // Reindirizza alla pagina di login
     this.router.navigate(['/login']);
   }
 }
-

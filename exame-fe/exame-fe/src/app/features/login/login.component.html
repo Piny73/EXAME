@@ -1,5 +1,6 @@
-<div class="login-container">
-    <form [formGroup]="loginForm"(ngSubmit)="onSubmit()">
+<div class="content-background">
+  <div class="login-container">
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <div class="form-group">
         <label for="usr">User</label>
         <input
@@ -12,7 +13,7 @@
           Username is required
         </div>
       </div>
-  
+
       <div class="form-group">
         <label for="pwd">Password</label>
         <input
@@ -27,11 +28,13 @@
         </div>
       </div>
       <button type="submit" [disabled]="!loginForm.valid" class="btn btn-primary">Login</button>
-      <button type="button" class="btn btn-success me-2"  (click)="openRegistrazione()">Registrazione</button>
+      <button type="button" class="btn btn-success me-2" (click)="openRegistrazione()">Registrazione</button>
     </form>
-    
-<div *ngIf="errorMessage" class="alert alert-danger">
+
+    <div *ngIf="errorMessage" class="alert alert-danger">
       {{ errorMessage }}
     </div>
   </div>
+</div>
+
   

@@ -22,32 +22,38 @@ export class UtilsService {
   }
 
   // Metodo per formattare la data per il frontend (da yyyy-MM-dd a dd/MM/yyyy) e viceversa
-  formatDate(_date: string | null, toFrontendFormat: boolean): string | null {
-    if (!_date || _date.trim() === '') {
-      console.error("Data null o vuota:", _date);
-      return null;
-    }
+formatDate(_date: string | null | undefined, toFrontendFormat: boolean): string | null {
+  if (!_date || _date.trim() === '') {
+    console.warn("Data non valida:", _date);
+    return null; // Oppure ritorna un valore predefinito, come una stringa vuota ""
+  }
 
-    let day: string, month: string, year: string;
-    const separator = _date.includes('/') ? '/' : '-';
-    const parts = _date.split(separator);
+  let day: string, month: string, year: string;
+  const separator = _date.includes('/') ? '/' : '-';
+  const parts = _date.split(separator);
 
-    // Converti il formato a seconda del valore di toFrontendFormat
-    if (toFrontendFormat && parts.length === 3) {
-      [day, month, year] = parts;
-      if (day.length < 3) {
-        return `${year}-${month}-${day}`;
-      }
-    } else if (!toFrontendFormat && parts.length === 3) {
-      [year, month, day] = parts;
-      if (year.length > 2) {
-        return `${day}/${month}/${year}`;
-      }
-    }
-
-    console.error("Formato non valido:", _date);
+  // Controlla che la data abbia esattamente 3 parti
+  if (parts.length !== 3) {
+    console.error("Formato non valido, la data dovrebbe avere 3 parti:", _date);
     return null;
   }
+
+  // Converti il formato a seconda del valore di toFrontendFormat
+  if (toFrontendFormat) {
+    // Formato yyyy-MM-dd o yyyy/MM/dd a dd/MM/yyyy
+    if (separator === '-') {
+      [year, month, day] = parts;
+    } else {
+      [year, month, day] = parts; // Già nel formato corretto
+    }
+    return `${day}/${month}/${year}`;
+  } else {
+    // Formato dd/MM/yyyy a yyyy-MM-dd
+    [day, month, year] = parts;
+    return `${year}-${month}-${day}`;
+  }
+}
+
 
   // Metodo per formattare l'ora nel formato 'HH:mm:ss.SSS'
   formatTime(date: Date): string {
@@ -64,7 +70,4 @@ export class UtilsService {
   formatDateTime(date: Date): string {
     return this.formatDateForBackend(date); // Riutilizza formatDateForBackend che gestisce già tutto
   }
-
 }
-
-

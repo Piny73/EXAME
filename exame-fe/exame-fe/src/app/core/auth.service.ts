@@ -1,6 +1,7 @@
+// auth.service.ts
 import { HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { BehaviorSubject, map, Observable } from 'rxjs';
 import { ApiService } from './api.service';
 import { Login } from './models/login.model';
 import { User } from './models/user.model';
@@ -9,75 +10,72 @@ import { User } from './models/user.model';
   providedIn: 'root'
 })
 export class AuthService {
-
-  private readonly endpoint = 'users/login'; //endpoint di login
+  private readonly endpoint = 'users/login'; // Endpoint di login
+  private userSubject = new BehaviorSubject<User | null>(this.getUserFromLocalStorage()); // Mantiene lo stato dell'utente
+  public user$ = this.userSubject.asObservable(); // Osservabile per accedere allo stato dell'utente
 
   constructor(private apiService: ApiService) { }
 
+  // Metodo per effettuare il login
   login(login: Login): Observable<any> {
-    const loginData = login;
     const headers = new HttpHeaders({
       'Content-Type': 'application/json'
     });
 
-    return this.apiService.post(this.endpoint, loginData, headers).pipe(
+    return this.apiService.post<User>(this.endpoint, login, headers).pipe(
       map(response => {
-        if (typeof response === 'string') {
-          this.saveUserInLocalStorage(response);
+        if (response && response.id && response.name) {
+          this.saveUserInLocalStorage(response); // Salva l'utente nel localStorage
+          this.userSubject.next(response); // Aggiorna lo stato dell'utente
         } else {
-          console.error('Errore: il valore di response non è una stringa', response);
+          console.error('Errore: la risposta non contiene un utente valido', response);
         }
         return response;
       })
     );
   }
 
+  // Metodo per ottenere l'utente corrente
   getUser(): User | null {
-    try {
-      const localUser = localStorage.getItem('user');
+    return this.userSubject.value;
+  }
 
+  // Metodo per ottenere l'utente dal localStorage
+  private getUserFromLocalStorage(): User | null {
+    if (typeof window !== 'undefined' && localStorage.getItem('user')) {
+      const localUser = localStorage.getItem('user');
       if (localUser) {
         try {
-          if (this.isValidUser(localUser)?.id) {
-            return this.isValidUser(localUser);
-          } else {
-            console.log('Error localstorage');
-            this.logout();
+          const parsedUser = JSON.parse(localUser);
+          if (parsedUser && parsedUser.id && parsedUser.name && parsedUser.email) {
+            return new User(parsedUser);
           }
         } catch (e) {
-          console.error('Erro localstorage:', e);
-          this.logout();
+          console.error('Errore nel parsing dell\'utente dal localStorage:', e);
         }
       }
-    } catch {
-      console.warn('Erro localStore:');
     }
-
     return null;
   }
 
-  private isValidUser(obj: any): User | null {
-    const _user = new User();
-
-    if (obj) {
-      _user.id = obj.id;
-      _user.name = obj.name;
-      _user.email = obj.email;
+  // Metodo per salvare l'utente nel localStorage
+  private saveUserInLocalStorage(user: User) {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('user', JSON.stringify(user));
     }
-
-    return _user;
   }
 
-  saveUserInLocalStorage(user: string) {
-    localStorage.setItem('user', user);
-  }
-
+  // Metodo per effettuare il logout
   logout() {
-    try {
+    if (typeof window !== 'undefined') {
       localStorage.removeItem('user');
-    } catch (error) {
-      console.error('Localstore Delete:', error);
     }
+    this.userSubject.next(null); // Aggiorna lo stato dell'utente a null
   }
 
+  // Metodo per ottenere il nome dell'utente corrente
+  getUserName(): string | null {
+    return this.userSubject.value?.name || null;
+  }
 }
+

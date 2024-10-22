@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { TimeSheetDTO } from '../models/timesheet.model';
 
 @Injectable({
@@ -16,7 +17,26 @@ export class TimesheetService {
    * @returns Un Observable che emette un array di TimeSheetDTO.
    */
   getTimesheets(): Observable<TimeSheetDTO[]> {
-    return this.http.get<TimeSheetDTO[]>(this.baseUrl);
+    return this.http.get<TimeSheetDTO[]>(this.baseUrl).pipe(
+      catchError(error => {
+        console.error('Errore durante il caricamento dei timesheet:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Ottiene un singolo Timesheet tramite ID.
+   * @param id L'ID del Timesheet.
+   * @returns Un Observable che emette il TimeSheetDTO corrispondente.
+   */
+  getTimesheetById(id: number): Observable<TimeSheetDTO> {
+    return this.http.get<TimeSheetDTO>(`${this.baseUrl}/${id}`).pipe(
+      catchError(error => {
+        console.error(`Errore durante il caricamento del timesheet con ID=${id}:`, error);
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
@@ -26,7 +46,13 @@ export class TimesheetService {
    */
   save(timesheetData: TimeSheetDTO): Observable<TimeSheetDTO> {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.http.post<TimeSheetDTO>(this.baseUrl, timesheetData, { headers });
+    console.log(timesheetData)
+    return this.http.post<TimeSheetDTO>(this.baseUrl, timesheetData, { headers }).pipe(
+      catchError(error => {
+        console.error('Errore durante il salvataggio del timesheet:', error);
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
@@ -36,7 +62,12 @@ export class TimesheetService {
    */
   updateTimesheet(timesheetData: TimeSheetDTO): Observable<TimeSheetDTO> {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.http.put<TimeSheetDTO>(`${this.baseUrl}/${timesheetData.id}`, timesheetData, { headers });
+    return this.http.put<TimeSheetDTO>(`${this.baseUrl}/${timesheetData.id}`, timesheetData, { headers }).pipe(
+      catchError(error => {
+        console.error(`Errore durante l'aggiornamento del timesheet con ID=${timesheetData.id}:`, error);
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
@@ -45,9 +76,15 @@ export class TimesheetService {
    * @returns Un Observable che completa senza emettere valori.
    */
   deleteTimesheet(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+    return this.http.delete<void>(`${this.baseUrl}/${id}`).pipe(
+      catchError(error => {
+        console.error(`Errore durante l'eliminazione del timesheet con ID=${id}:`, error);
+        return throwError(() => error);
+      })
+    );
   }
 }
+
 
 
 

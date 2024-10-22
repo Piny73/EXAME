@@ -1,3 +1,4 @@
+// user.service.ts
 import { HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -9,13 +10,10 @@ import { User } from '../models/user.model';
   providedIn: 'root'
 })
 export class UserService {
-
   private readonly endpoint = 'users';
   private userList: User[] = [];
 
-  constructor(
-    private apiService: ApiService
-  ) { }
+  constructor(private apiService: ApiService) { }
 
   // Metodo per salvare un nuovo utente
   save(_user: User): Observable<User> {
@@ -24,7 +22,7 @@ export class UserService {
     });
 
     return this.apiService.post<User>(this.endpoint, _user, headers).pipe(
-      map(response => response)
+      map(response => new User(response)) // Creazione dell'istanza User dalla risposta
     );
   }
 
@@ -35,7 +33,7 @@ export class UserService {
     });
 
     return this.apiService.put<User>(this.endpoint, _user, headers).pipe(
-      map(response => response)
+      map(response => new User(response)) // Creazione dell'istanza User dalla risposta
     );
   }
 
@@ -48,14 +46,7 @@ export class UserService {
     return this.apiService.get<User[]>(this.endpoint, headers).pipe(
       map((response: User[]) => {
         if (Array.isArray(response)) {
-          this.userList = response.map((data: User) => {
-            return new User({
-              id: data.id,
-              name: data.name,
-              email: data.email,
-              pwd: "" // La password non viene mappata per motivi di sicurezza
-            });
-          });
+          this.userList = response.map((data: User) => new User(data)); // Creazione dell'istanza User
           return this.userList;
         } else {
           console.error('La risposta dell\'API non è un array');
@@ -82,7 +73,7 @@ export class UserService {
     });
 
     return this.apiService.post<User>(this.endpoint, _user, headers).pipe(
-      map(response => response)
+      map(response => new User(response)) // Creazione dell'istanza User dalla risposta
     );
   }
 
@@ -94,16 +85,8 @@ export class UserService {
 
     return this.apiService.get<User[]>(this.endpoint, headers).pipe(
       map((response: User[]) => {
-        return response.map((data: User) => {
-          return new User({
-            id: data.id,
-            name: data.name,
-            email: data.email,
-            pwd: "" // La password non viene mappata per motivi di sicurezza
-          });
-        });
+        return response.map((data: User) => new User(data)); // Creazione dell'istanza User
       })
     );
   }
 }
-

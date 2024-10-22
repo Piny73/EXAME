@@ -1,3 +1,10 @@
+<!-- navbar.component.html -->
 <nav>
+  <div *ngIf="user$ | async as user; else noUser">
+    <span>{{ user.name }}</span> <!-- Mostra il nome dell'utente -->
     <button (click)="logout()" class="btn btn-danger">Log out</button>
-  </nav>
+  </div>
+  <ng-template #noUser>
+    <button (click)="logout()" class="btn btn-danger">Log out</button>
+  </ng-template>
+</nav>
