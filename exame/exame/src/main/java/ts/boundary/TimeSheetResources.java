@@ -45,19 +45,53 @@ public class TimeSheetResources {
     @Context
     UriInfo uriInfo;
 
-    @GET
-    @Path("{userId}")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Restituisce l'elenco dei TimeSheet di un Utente")
-    @APIResponses({
-        @APIResponse(responseCode = "200", description = "Elenco ritornato con successo"),
-        @APIResponse(responseCode = "404", description = "Utente non trovato")
-    })
-    public List<TimeSheetDTO> getAllTimeSheets(@PathParam("userId") Long userId) {
-        User user = storeUser.find(userId).orElseThrow(() -> new NotFoundException("Utente non trovato. ID=" + userId));
+@GET
+@Produces(MediaType.APPLICATION_JSON)
+@Operation(description = "Restituisce l'elenco di tutti i TimeSheet")
+@APIResponses({
+    @APIResponse(responseCode = "200", description = "Elenco ritornato con successo"),
+    @APIResponse(responseCode = "204", description = "Nessun contenuto disponibile")
+})
+public Response getAllTimeSheets() {
+    List<TimeSheetDTO> timeSheetList = new ArrayList<>();
+    
+    storeTimeSheet.findAll().forEach(e -> {
+        TimeSheetDTO timeSheetDTO = new TimeSheetDTO();
+        timeSheetDTO.id = e.getId();
+        timeSheetDTO.activityid = e.getActivity().getId();
+        timeSheetDTO.userid = e.getUser().getId();
+        timeSheetDTO.dtstart = e.getDtstart();
+        timeSheetDTO.dtend = e.getDtend();
+        timeSheetDTO.detail = e.getDetail();
+        timeSheetDTO.hoursPerDay = e.getHoursPerDay();
+        timeSheetList.add(timeSheetDTO);
+    });
 
-        List<TimeSheetDTO> timeSheetList = new ArrayList<>();
-        storeTimeSheet.all(userId).forEach(e -> {
+    if (timeSheetList.isEmpty()) {
+        return Response.status(Response.Status.NO_CONTENT).build();
+    }
+
+    return Response.ok(timeSheetList).build();
+}
+
+@GET
+@Path("{userId}")
+@Produces(MediaType.APPLICATION_JSON)
+@Operation(description = "Restituisce l'elenco dei TimeSheet di un Utente specifico")
+@APIResponses({
+    @APIResponse(responseCode = "200", description = "Elenco ritornato con successo"),
+    @APIResponse(responseCode = "404", description = "Utente non trovato"),
+    @APIResponse(responseCode = "400", description = "ID utente non valido"),
+    @APIResponse(responseCode = "204", description = "Nessun contenuto disponibile")
+})
+public Response getUserTimeSheets(@PathParam("userId") String userId) {
+    List<TimeSheetDTO> timeSheetList = new ArrayList<>();
+
+    try {
+        Long parsedUserId = Long.parseLong(userId);
+        User user = storeUser.find(parsedUserId).orElseThrow(() -> new NotFoundException("Utente non trovato. ID=" + parsedUserId));
+
+        storeTimeSheet.all(parsedUserId).forEach(e -> {
             TimeSheetDTO timeSheetDTO = new TimeSheetDTO();
             timeSheetDTO.id = e.getId();
             timeSheetDTO.activityid = e.getActivity().getId();
@@ -65,12 +99,22 @@ public class TimeSheetResources {
             timeSheetDTO.dtstart = e.getDtstart();
             timeSheetDTO.dtend = e.getDtend();
             timeSheetDTO.detail = e.getDetail();
-            timeSheetDTO.hoursPerDay = e.getHoursPerDay();  // Usa la mappa di tipo String
+            timeSheetDTO.hoursPerDay = e.getHoursPerDay();
             timeSheetList.add(timeSheetDTO);
         });
 
-        return timeSheetList;
+    } catch (NumberFormatException e) {
+        return Response.status(Response.Status.BAD_REQUEST).entity("userId non valido").build();
     }
+
+    if (timeSheetList.isEmpty()) {
+        return Response.status(Response.Status.NO_CONTENT).build();
+    }
+
+    return Response.ok(timeSheetList).build();
+}
+
+
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)

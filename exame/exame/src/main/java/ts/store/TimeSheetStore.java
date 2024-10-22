@@ -32,5 +32,15 @@ public class TimeSheetStore extends BaseStore<TimeSheet> {
         TimeSheet found = getEm().find(TimeSheet.class, id);
         return Optional.ofNullable(found);
     }
+    
+    /**
+ * Recupera tutti i timesheet presenti nel sistema.
+ *
+ * @return lista di tutti i timesheet.
+ */
+public List<TimeSheet> findAll() {
+    return getEm().createQuery("SELECT e FROM TimeSheet e", TimeSheet.class)
+            .getResultList();
+}
 }
 

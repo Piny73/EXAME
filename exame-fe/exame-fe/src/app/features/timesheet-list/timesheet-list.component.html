@@ -3,9 +3,6 @@
     <table *ngIf="timesheets.length > 0" class="table table-striped table-sm">
       <thead>
         <tr>
-          <th scope="col">Seleziona</th>
-          <th scope="col">Descrizione Attività</th>
-          <th scope="col">Proprietario</th>
           <th scope="col">Data Inizio</th>
           <th scope="col">Data Fine</th>
           <th scope="col">Dettaglio</th>
@@ -13,7 +10,16 @@
         </tr>
       </thead>
       <tbody>
-        <app-timesheet-row *ngFor="let timesheet of timesheets" [timesheet]="timesheet"></app-timesheet-row>
+        <tr *ngFor="let timesheet of timesheets">
+          <td>{{ timesheet.dtstart | date: 'dd/MM/yyyy' }}</td>
+          <td>{{ timesheet.dtend | date: 'dd/MM/yyyy' }}</td>
+          <td>{{ timesheet.detail }}</td>
+          <td>
+            <div *ngFor="let entry of timesheet.hoursPerDay | keyvalue">
+              <span>{{ entry.key }}: {{ entry.value }} ore</span>
+            </div>
+          </td>
+        </tr>
       </tbody>
     </table>
     <div *ngIf="timesheets.length === 0" class="alert alert-warning">

@@ -13,9 +13,9 @@ import { TimesheetFormComponent } from './timesheet-form/timesheet-form.componen
   styleUrls: ['./timesheet-list.component.css']
 })
 export class TimesheetListComponent implements OnInit {
-  timesheets: TimeSheetDTO[] = [];
-  loading = false; // Indicatore di caricamento
-  errorMessage = ''; // Messaggio di errore
+  timesheets: TimeSheetDTO[] = []; // Lista dei timesheet
+  loading: boolean = false; // Indicatore di caricamento
+  errorMessage: string = ''; // Messaggio di errore
 
   @Output() timesheetSelected = new EventEmitter<TimeSheetDTO>(); // Output per emettere evento di selezione
 
@@ -27,10 +27,10 @@ export class TimesheetListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadTimesheets();
+    this.loadTimesheets(); // Carica i timesheet al caricamento del componente
   }
 
-  // Carica i timesheet dal servizio
+  // Carica i timesheet dal servizio, con attività e utenti associati
   private loadTimesheets(): void {
     this.loading = true;
     this.errorMessage = '';
@@ -58,9 +58,10 @@ export class TimesheetListComponent implements OnInit {
       );
   }
 
-  // Seleziona una timesheet ed emette l'evento
+  // Gestisce la selezione di un timesheet ed emette l'evento
   selectTimesheet(timesheet: TimeSheetDTO): void {
-    this.timesheetSelected.emit(timesheet); // Emette l'evento di selezione
+    this.timesheetSelected.emit(timesheet);
+    console.log('Timesheet selezionato:', timesheet);
   }
 
   // Apre il modal per aggiungere o modificare un timesheet
