@@ -6,7 +6,6 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Activity, ActivityDTO } from '../../../core/models/activity.model';
 import { ActivityService } from '../../../core/services/activity.service';
 import { UtilsService } from '../../../core/utils.service';
-import { User } from '../../../core/models/user.model';
 
 @Component({
   selector: 'app-activity-form',
@@ -64,29 +63,19 @@ export class ActivityFormComponent implements OnInit {
       enable: selectedActivity.enable
     });
 
-    this.activityCopy = {
-      ...selectedActivity,
-      owner: this.activity.owner || null
-    };
-
+    this.activityCopy = { ...selectedActivity };
     console.log('Attività selezionata:', selectedActivity);
   }
 
   private populateFormWithActivityData(): void {
     this.currentOwner = this.activity.ownerid;
 
-    if (this.activity.owner) {
-      this.activity.ownerName = this.activity.owner.name;
-    } else {
-      this.activity.ownerName = 'N/A';
-    }
-
     this.activityForm.patchValue({
       id: this.activity.id || 0,
       description: this.activity.description,
       ownerid: this.activity.ownerid,
-      dtstart: this.activity.dtstart,
-      dtend: this.activity.dtend,
+      dtstart: this.activity.dtstart ? this.utils.formatDateForInput(this.activity.dtstart) : null,
+      dtend: this.activity.dtend ? this.utils.formatDateForInput(this.activity.dtend) : null,
       enable: this.activity.enable
     });
 
@@ -96,7 +85,6 @@ export class ActivityFormComponent implements OnInit {
 
   onSubmit(): void {
     if (this.activityForm.valid) {
-      this.activity = this.activityForm.value;
       this.showSaveDialog = true;
     } else {
       console.log('Form non valido');

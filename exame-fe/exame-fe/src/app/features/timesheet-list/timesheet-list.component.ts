@@ -49,8 +49,8 @@ export class TimesheetListComponent implements OnInit {
           // Mappa i dati aggiungendo la descrizione dell'attività, il nome del proprietario, le ore lavorate e la data di lavoro
           this.timesheets = timesheets.map(timesheet => ({
             ...timesheet,
-            activityDescription: activities.find(a => a.id === timesheet.activityId)?.description || 'N/A',
-            ownerName: users.find(u => u.id === timesheet.userId)?.name || 'N/A',
+            activityDescription: activities.find(a => a.id === timesheet.activityid)?.description || 'N/A',
+            ownerName: users.find(u => u.id === timesheet.userid)?.name || 'N/A',
             hoursWorked: timesheet.hoursWorked, // Ore lavorate
             workDate: timesheet.workDate // Data del giorno lavorato
           }));
@@ -85,8 +85,8 @@ export class TimesheetListComponent implements OnInit {
   private createEmptyTimeSheet(): TimeSheetDTO {
     return {
       id: 0,
-      userId: null,
-      activityId: null,
+      userid: null,
+      activityid: null,
       dtstart: null,
       dtend: null,
       detail: '',
@@ -95,4 +95,3 @@ export class TimesheetListComponent implements OnInit {
     };
   }
 }
-

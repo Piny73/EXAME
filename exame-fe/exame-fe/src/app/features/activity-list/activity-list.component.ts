@@ -1,3 +1,5 @@
+// src/app/features/activity-list/activity-list.component.ts
+
 import { Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges, TemplateRef } from '@angular/core';
 import { Activity, ActivityDTO } from '../../core/models/activity.model';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -61,19 +63,19 @@ export class ActivityListComponent implements OnInit, OnChanges {
     );
   }
 
-  // Metodo per gestire la selezione di un'attività
-  selectActivity(activity: Activity): void {
-    const activityDTO: ActivityDTO = {
-      id: activity.id,
-      description: activity.description,
-      dtstart: activity.dtstart || new Date(),
-      dtend: activity.dtend || new Date(),
-      ownerid: activity.ownerid,
-      enable: activity.enable,
-      ownerName: activity.ownerName || ''
-    };
-    this.onSelectActivity.emit(activityDTO);
-  }
+// Metodo per gestire la selezione di un'attività
+selectActivity(activity: Activity): void {
+  const activityDTO: ActivityDTO = {
+    id: activity.id,
+    description: activity.description,
+    dtstart: activity.dtstart || new Date(),
+    dtend: activity.dtend || new Date(),
+    ownerid: activity.ownerid,
+    enable: activity.enable,
+    ownerName: activity.ownerName || null
+  };
+  this.onSelectActivity.emit(activityDTO);
+}
 
   // Metodo per cancellare una singola attività
   deleteActivity(activity: Activity): void {

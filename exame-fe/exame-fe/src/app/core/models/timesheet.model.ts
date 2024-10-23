@@ -5,8 +5,8 @@ import { User } from "./user.model";
 
 export class TimeSheet {
   id!: number;                      // Identificatore univoco del Timesheet
-  activityId!: number | null;       // ID dell'attività associata, ora accetta null
-  userId!: number | null;           // ID dell'utente, ora accetta null
+  activityid!: number | null;       // ID dell'attività associata, ora accetta null
+  userid!: number | null;           // ID dell'utente, ora accetta null
   detail!: string;                  // Dettagli del lavoro svolto
   dtstart!: Date | null;            // Data e ora di inizio, ora di tipo Date
   dtend!: Date | null;              // Data e ora di fine, ora di tipo Date
@@ -22,11 +22,11 @@ export class TimeSheet {
 
 export interface TimeSheetDTO {
   id: number;                      // Identificatore del Timesheet
-  activityId: number | null;       // ID dell'attività associata, ora accetta null
-  userId: number | null;           // ID dell'utente, ora accetta null
+  activityid: number | null;       // ID dell'attività associata, ora accetta null
+  userid: number | null;           // ID dell'utente, ora accetta null
   dtstart: Date | null;            // Data e ora di inizio, ora di tipo Date
   dtend: Date | null;              // Data e ora di fine, ora di tipo Date
   detail: string;                  // Dettagli del lavoro svolto
   hoursWorked: number;             // Numero di ore lavorate
-  workDate: Date | null;                  // Data del giorno lavorato, ora di tipo Date
+  workDate: Date | null;           // Data del giorno lavorato, ora di tipo Date
 }

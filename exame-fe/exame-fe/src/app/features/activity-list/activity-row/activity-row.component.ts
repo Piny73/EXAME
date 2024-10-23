@@ -33,7 +33,7 @@ export class ActivityRowComponent implements OnInit {
     if (this.activity && this.activity.ownerid) {
       const owner = this.userService.findById(this.activity.ownerid);
       if (owner) {
-        this.activity.owner = owner as User;
+        this.activity.ownerName = owner as User;
       } else {
         console.warn(`User with id ${this.activity.ownerid} not found.`);
       }

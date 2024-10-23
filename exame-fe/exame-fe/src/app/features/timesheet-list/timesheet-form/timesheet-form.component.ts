@@ -63,11 +63,11 @@ export class TimesheetFormComponent implements OnInit {
     // Carica i dati del timesheet selezionato nel form
     this.timesheetForm.patchValue({
       id: selectedTimesheet.id,
-      userId: selectedTimesheet.userId,
-      activityId: selectedTimesheet.activityId,
+      userId: selectedTimesheet.userid,
+      activityId: selectedTimesheet.activityid,
       dtstart: selectedTimesheet.dtstart ? this.utils.formatDateForInput(selectedTimesheet.dtstart) : '',
       dtend: selectedTimesheet.dtend ? this.utils.formatDateForInput(selectedTimesheet.dtend) : '',
-      workDate: selectedTimesheet.workDate ? this.utils.formatDateForDateInput(selectedTimesheet.workDate) : '',
+      workDate: selectedTimesheet.workDate ? this.utils.formatDateForInput(selectedTimesheet.workDate) : '',
       detail: selectedTimesheet.detail,
       hoursWorked: selectedTimesheet.hoursWorked
     });
@@ -98,11 +98,11 @@ export class TimesheetFormComponent implements OnInit {
     // Patch dei valori al form, convertendo i tipi Date in stringhe formattate per i controlli di input
     this.timesheetForm.patchValue({
       id: this.timesheet.id,
-      userId: this.timesheet.userId,
-      activityId: this.timesheet.activityId,
+      userId: this.timesheet.userid,
+      activityId: this.timesheet.activityid,
       dtstart: this.timesheet.dtstart ? this.utils.formatDateForInput(this.timesheet.dtstart) : '',
       dtend: this.timesheet.dtend ? this.utils.formatDateForInput(this.timesheet.dtend) : '',
-      workDate: this.timesheet.workDate ? this.utils.formatDateForDateInput(this.timesheet.workDate) : '',
+      workDate: this.timesheet.workDate ? this.utils.formatDateForInput(this.timesheet.workDate) : '',
       detail: this.timesheet.detail,
       hoursWorked: this.timesheet.hoursWorked
     });
@@ -125,20 +125,19 @@ export class TimesheetFormComponent implements OnInit {
   public resetForm(): void {
     this.timesheetForm.reset();
   }
-
   public onSubmit(): void {
     if (this.timesheetForm.valid) {
       const timesheetData: TimeSheetDTO = {
         id: this.timesheetForm.value.id || 0,
-        userId: this.timesheetForm.value.userId ? parseInt(this.timesheetForm.value.userId, 10) : null,
-        activityId: this.timesheetForm.value.activityId ? parseInt(this.timesheetForm.value.activityId, 10) : null,
-        dtstart: this.timesheetForm.value.dtstart ? new Date(this.timesheetForm.value.dtstart) : null,
-        dtend: this.timesheetForm.value.dtend ? new Date(this.timesheetForm.value.dtend) : null,
-        workDate: this.timesheetForm.value.workDate ? new Date(this.timesheetForm.value.workDate) : null,
+        userid: this.timesheetForm.value.userId ? parseInt(this.timesheetForm.value.userId, 10) : null,
+        activityid: this.timesheetForm.value.activityId ? parseInt(this.timesheetForm.value.activityId, 10) : null,
+        dtstart: this.timesheetForm.value.dtstart ? new Date(this.timesheetForm.value.dtstart) : null, // Usa il valore come Date
+        dtend: this.timesheetForm.value.dtend ? new Date(this.timesheetForm.value.dtend) : null,       // Usa il valore come Date
+        workDate: this.timesheetForm.value.workDate ? new Date(this.timesheetForm.value.workDate) : null, // Usa il valore come Date
         detail: this.timesheetForm.value.detail,
         hoursWorked: this.timesheetForm.value.hoursWorked
       };
-
+  
       if (timesheetData.id) {
         this.updateTimesheet(timesheetData);
       } else {
@@ -148,8 +147,9 @@ export class TimesheetFormComponent implements OnInit {
       this.timesheetForm.markAllAsTouched();
     }
   }
-
+  
   private createTimesheet(timesheetData: TimeSheetDTO): void {
+    console.log('Payload inviato per la creazione:', timesheetData);
     this.timesheetService.save(timesheetData).subscribe({
       next: () => {
         console.log('Creazione completata con successo');
@@ -161,6 +161,7 @@ export class TimesheetFormComponent implements OnInit {
   }
 
   private updateTimesheet(timesheetData: TimeSheetDTO): void {
+    console.log('Payload inviato per l\'aggiornamento:', timesheetData);
     this.timesheetService.updateTimesheet(timesheetData).subscribe({
       next: () => {
         console.log('Aggiornamento completato con successo');
