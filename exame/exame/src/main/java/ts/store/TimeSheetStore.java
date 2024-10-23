@@ -3,6 +3,7 @@ package ts.store;
 import java.util.List;
 import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
+import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
 import ts.entity.TimeSheet;
 
@@ -34,13 +35,29 @@ public class TimeSheetStore extends BaseStore<TimeSheet> {
     }
     
     /**
- * Recupera tutti i timesheet presenti nel sistema.
- *
- * @return lista di tutti i timesheet.
- */
-public List<TimeSheet> findAll() {
-    return getEm().createQuery("SELECT e FROM TimeSheet e", TimeSheet.class)
-            .getResultList();
-}
-}
+     * Recupera tutti i timesheet presenti nel sistema.
+     *
+     * @return lista di tutti i timesheet.
+     */
+    public List<TimeSheet> findAll() {
+        return getEm().createQuery("SELECT e FROM TimeSheet e", TimeSheet.class)
+                .getResultList();
+    }
+    
+    /**
+     * Calcola il totale delle ore lavorate per una specifica attività.
+     *
+     * @param activityId ID dell'attività.
+     * @return il totale delle ore lavorate per l'attività specificata.
+     */
+    public int getTotalHoursByActivity(Long activityId) {
+        TypedQuery<Integer> query = getEm().createQuery(
+            "SELECT SUM(ts.hoursWorked) FROM TimeSheet ts WHERE ts.activity.id = :activityId AND ts.enable = true",
+            Integer.class
+        );
+        query.setParameter("activityId", activityId);
+        Integer totalHours = query.getSingleResult();
 
+        return totalHours != null ? totalHours : 0;
+    }
+}

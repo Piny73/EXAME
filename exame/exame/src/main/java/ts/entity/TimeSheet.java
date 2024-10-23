@@ -6,19 +6,16 @@ package ts.entity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 import javax.json.bind.annotation.JsonbTypeAdapter;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import ts.entity.adapter.LocalDateTimeAdapter;
+
 
 @Entity
 @Table(name = "timesheet")
@@ -49,10 +46,13 @@ public class TimeSheet extends BaseEntity {
     @Column(nullable = false)
     private boolean enable;
 
-    // ElementCollection per gestire la mappa delle ore per giorno
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Column(name = "hours_per_day")
-    private Map<String, Integer> hoursPerDay = new HashMap<>();
+    @NotNull
+    @Column(name = "hours_worked", nullable = false)
+    private Integer hoursWorked;  // Numero di ore lavorate
+
+    @NotNull
+    @Column(name = "work_date", nullable = false)
+    private LocalDate workDate;  // Data del giorno lavorato
 
     // Getters e Setters
 
@@ -104,12 +104,24 @@ public class TimeSheet extends BaseEntity {
         this.enable = enable;
     }
 
-    public Map<String, Integer> getHoursPerDay() {
-        return hoursPerDay;
+    public Integer getHoursWorked() {
+        return hoursWorked;
     }
 
-    public void setHoursPerDay(Map<String, Integer> hoursPerDay) {
-        this.hoursPerDay = hoursPerDay;
+    public void setHoursWorked(Integer hoursWorked) {
+        this.hoursWorked = hoursWorked;
     }
 
+    public LocalDate getWorkDate() {
+        return workDate;
+    }
+
+    public void setWorkDate(LocalDate workDate) {
+        this.workDate = workDate;
+    }
+
+    public TimeSheet() {
+    }
+    
+    
 }

@@ -1,7 +1,7 @@
 package ts.boundary.mapping;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Map;
 import javax.json.bind.annotation.JsonbTypeAdapter;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -28,8 +28,11 @@ public class TimeSheetDTO {
     @NotBlank
     public String detail;  
 
-    // Mappa per le ore per giorno
-    public Map<String, Integer> hoursPerDay;  // Cambia LocalDate in String
+    @NotNull
+    public Integer hoursWorked;  // Nuovo campo per il numero di ore lavorate
+
+    @NotNull
+    public LocalDate workDate;  // Nuovo campo per la data di lavoro
 
     @Override
     public String toString() {
@@ -40,8 +43,8 @@ public class TimeSheetDTO {
                ", dtstart=" + dtstart + 
                ", dtend=" + dtend + 
                ", detail='" + detail + '\'' + 
-               ", hoursPerDay=" + hoursPerDay + 
+               ", hoursWorked=" + hoursWorked + 
+               ", workDate=" + workDate + 
                '}';
     }
 }
-
