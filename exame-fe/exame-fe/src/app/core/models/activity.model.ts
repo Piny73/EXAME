@@ -1,10 +1,12 @@
+// src/app/models/activity.model.ts
+
 import { User } from './user.model';
 
 export class Activity {
   id!: number; // Identificatore dell'attività
   description!: string; // Descrizione dell'attività
-  dtstart!: string | null; // Data di inizio, può essere null
-  dtend!: string | null; // Data di fine, può essere null
+  dtstart!: Date | null; // Data di inizio, ora di tipo Date, può essere null
+  dtend!: Date | null; // Data di fine, ora di tipo Date, può essere null
   ownerid!: number; // ID del proprietario dell'attività
   enable!: boolean; // Stato dell'attività (attiva o disabilitata)
   owner!: User | null; // Riferimento all'utente proprietario, può essere null
@@ -14,4 +16,13 @@ export class Activity {
     Object.assign(this, init);
   }
 }
-
+// activity.model.ts
+export interface ActivityDTO {
+  id: number;
+  description: string;
+  dtstart: Date;
+  dtend: Date;
+  ownerid: number;
+  enable: boolean;
+  ownerName: string;
+}

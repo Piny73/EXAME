@@ -2,9 +2,6 @@
   <td>{{ timesheet.dtstart | date: 'dd/MM/yyyy HH:mm' }}</td> <!-- Data Inizio -->
   <td>{{ timesheet.dtend | date: 'dd/MM/yyyy HH:mm' }}</td> <!-- Data Fine -->
   <td>{{ timesheet.detail }}</td> <!-- Dettaglio -->
-  <td>
-    <div *ngFor="let entry of timesheet.hoursPerDay | keyvalue">
-      <span>{{ entry.key }}: {{ entry.value }} ore</span>
-    </div>
-  </td>
+  <td>{{ timesheet.hoursWorked }} ore</td> <!-- Ore Lavorate -->
+  <td>{{ timesheet.workDate | date: 'dd/MM/yyyy' }}</td> <!-- Data di Lavoro -->
 </tr>

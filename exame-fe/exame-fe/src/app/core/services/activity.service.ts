@@ -1,3 +1,5 @@
+// src/app/services/activity.service.ts
+
 import { Injectable } from '@angular/core';
 import { ApiService } from '../api.service';
 import { Activity } from '../models/activity.model';
@@ -53,6 +55,14 @@ export class ActivityService {
   fill(): Observable<Activity[]> {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     return this.apiService.get<Activity[]>(this.endpoint, headers).pipe(
+      map((activities: Activity[]) => {
+        // Converti le date delle attività in oggetti Date
+        return activities.map(activity => ({
+          ...activity,
+          dtstart: activity.dtstart ? new Date(activity.dtstart) : null,
+          dtend: activity.dtend ? new Date(activity.dtend) : null,
+        }));
+      }),
       tap((response: Activity[]) => this.activityList = response), // Aggiorna la lista locale delle attività
       catchError(this.handleError)
     );

@@ -1,3 +1,5 @@
+// src/app/models/timesheet.model.ts
+
 import { Activity } from "./activity.model";
 import { User } from "./user.model";
 
@@ -6,13 +8,12 @@ export class TimeSheet {
   activityId!: number | null;       // ID dell'attività associata, ora accetta null
   userId!: number | null;           // ID dell'utente, ora accetta null
   detail!: string;                  // Dettagli del lavoro svolto
-  dtstart!: string | null;          // Data e ora di inizio
-  dtend!: string | null;            // Data e ora di fine
+  dtstart!: Date | null;            // Data e ora di inizio, ora di tipo Date
+  dtend!: Date | null;              // Data e ora di fine, ora di tipo Date
   user!: User;                      // Oggetto utente associato
   activity!: Activity;              // Oggetto attività associata
-  hoursPerDay!: {                  // Ore per giorno
- [date: string]: number;         // La chiave è una stringa (data), il valore è un numero di ore
-  };
+  hoursWorked!: number;             // Numero di ore lavorate
+  workDate!: Date;                  // Data del giorno lavorato, ora di tipo Date
 
   constructor(init?: Partial<TimeSheet>) {
     Object.assign(this, init);      // Assegna valori iniziali se forniti
@@ -23,8 +24,9 @@ export interface TimeSheetDTO {
   id: number;                      // Identificatore del Timesheet
   activityId: number | null;       // ID dell'attività associata, ora accetta null
   userId: number | null;           // ID dell'utente, ora accetta null
-  dtstart: string | null;          // Data e ora di inizio
-  dtend: string | null;            // Data e ora di fine
+  dtstart: Date | null;            // Data e ora di inizio, ora di tipo Date
+  dtend: Date | null;              // Data e ora di fine, ora di tipo Date
   detail: string;                  // Dettagli del lavoro svolto
-  hoursPerDay: { [date: string]: number };  // Definizione della mappa
-  }
+  hoursWorked: number;             // Numero di ore lavorate
+  workDate: Date | null;                  // Data del giorno lavorato, ora di tipo Date
+}

@@ -1,3 +1,5 @@
+// src/app/services/timesheet.service.ts
+
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
@@ -46,7 +48,6 @@ export class TimesheetService {
    */
   save(timesheetData: TimeSheetDTO): Observable<TimeSheetDTO> {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    console.log(timesheetData)
     return this.http.post<TimeSheetDTO>(this.baseUrl, timesheetData, { headers }).pipe(
       catchError(error => {
         console.error('Errore durante il salvataggio del timesheet:', error);
@@ -83,9 +84,18 @@ export class TimesheetService {
       })
     );
   }
+
+  /**
+   * Ottiene il totale delle ore lavorate per una specifica attività.
+   * @param activityId L'ID dell'attività.
+   * @returns Un Observable che emette il totale delle ore lavorate.
+   */
+  getTotalHoursByActivity(activityId: number): Observable<number> {
+    return this.http.get<number>(`${this.baseUrl}/activity/${activityId}/totalHours`).pipe(
+      catchError(error => {
+        console.error(`Errore durante il calcolo del totale delle ore per l'attività con ID=${activityId}:`, error);
+        return throwError(() => error);
+      })
+    );
+  }
 }
-
-
-
-
-

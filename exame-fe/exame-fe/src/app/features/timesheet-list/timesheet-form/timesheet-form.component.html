@@ -5,10 +5,10 @@
     <app-activity-list (onSelectActivity)="selectActivity($event)"></app-activity-list>
   </div>
 
-  <!-- Elenco TimeSheet Presenti --> 
-  <h5 class="mb-4">Elenco TimeSheet Presenti</h5> 
+  <!-- Elenco TimeSheet Presenti -->
+  <h5 class="mb-4">Elenco TimeSheet Presenti</h5>
   <div class="table-responsive">
-    <app-timesheet-list (timesheetSelected)="selectTimeSheet($event)"></app-timesheet-list> 
+    <app-timesheet-list (timesheetSelected)="selectTimeSheet($event)"></app-timesheet-list>
   </div>
 
   <!-- Form per creare/modificare una nuova TimeSheet -->
@@ -22,7 +22,7 @@
         <select 
           id="activityId" 
           formControlName="activityId" 
-          class="form-control" >
+          class="form-control">
           <option value="" disabled selected>Seleziona un'attività</option>
           <option *ngFor="let activity of activityList" [value]="activity.id">{{ activity.description }}</option>
         </select>
@@ -73,23 +73,26 @@
         rows="3"></textarea>
     </div>
 
-    <!-- Ore per Giorno -->
-    <div formArrayName="hoursPerDay" class="mb-3">
-      <label class="form-label"></label>
-      <div *ngFor="let hoursGroup of hoursPerDayControls; let i = index" [formGroupName]="i" class="mb-2">
-        <div class="d-flex">
-          <input 
-            type="date" 
-            formControlName="date" 
-            class="form-control me-2">
-          <input 
-            type="number" 
-            formControlName="hours" 
-            class="form-control me-2">
-          <button type="button" class="btn btn-danger" (click)="removeHoursPerDay(i)">Rimuovi</button>
-        </div>
+    <div class="row mb-3">
+      <!-- Ore Lavorate -->
+      <div class="col-md-6">
+        <label for="hoursWorked" class="form-label">Ore Lavorate</label>
+        <input 
+          type="number" 
+          id="hoursWorked" 
+          formControlName="hoursWorked" 
+          class="form-control">
       </div>
-      <button type="button" class="btn btn-primary mt-2" (click)="addHoursPerDay()">Inserisci Data e n° ore</button>
+
+      <!-- Data del Giorno Lavorato -->
+      <div class="col-md-6">
+        <label for="workDate" class="form-label">Data del Giorno Lavorato</label>
+        <input 
+          type="date" 
+          id="workDate" 
+          formControlName="workDate" 
+          class="form-control">
+      </div>
     </div>
 
     <!-- Bottoni di azione -->
@@ -101,3 +104,4 @@
     </div>
   </form>
 </div>
+

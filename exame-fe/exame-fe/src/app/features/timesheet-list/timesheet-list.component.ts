@@ -1,3 +1,5 @@
+// src/app/components/timesheet-list/timesheet-list.component.ts
+
 import { Component, EventEmitter, Output, OnInit } from '@angular/core';
 import { TimesheetService } from '../../core/services/timesheet.service';
 import { TimeSheetDTO } from '../../core/models/timesheet.model';
@@ -44,11 +46,13 @@ export class TimesheetListComponent implements OnInit {
       .pipe(finalize(() => (this.loading = false))) // Disabilita l'indicatore di caricamento alla fine della richiesta
       .subscribe(
         ({ timesheets, activities, users }) => {
-          // Mappa i dati aggiungendo la descrizione dell'attività e il nome del proprietario
+          // Mappa i dati aggiungendo la descrizione dell'attività, il nome del proprietario, le ore lavorate e la data di lavoro
           this.timesheets = timesheets.map(timesheet => ({
             ...timesheet,
             activityDescription: activities.find(a => a.id === timesheet.activityId)?.description || 'N/A',
-            ownerName: users.find(u => u.id === timesheet.userId)?.name || 'N/A'
+            ownerName: users.find(u => u.id === timesheet.userId)?.name || 'N/A',
+            hoursWorked: timesheet.hoursWorked, // Ore lavorate
+            workDate: timesheet.workDate // Data del giorno lavorato
           }));
         },
         error => {
@@ -86,7 +90,9 @@ export class TimesheetListComponent implements OnInit {
       dtstart: null,
       dtend: null,
       detail: '',
-      hoursPerDay: {}
+      hoursWorked: 0, // Imposta il valore di default per le ore lavorate
+      workDate: null // Imposta il valore di default per la data del giorno lavorato
     };
   }
 }
+

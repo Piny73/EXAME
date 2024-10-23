@@ -6,19 +6,17 @@
           <th scope="col">Data Inizio</th>
           <th scope="col">Data Fine</th>
           <th scope="col">Dettaglio</th>
-          <th scope="col">Ore per Giorno</th>
+          <th scope="col">Ore Lavorate</th>
+          <th scope="col">Data di Lavoro</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let timesheet of timesheets">
-          <td>{{ timesheet.dtstart | date: 'dd/MM/yyyy' }}</td>
-          <td>{{ timesheet.dtend | date: 'dd/MM/yyyy' }}</td>
+          <td>{{ timesheet.dtstart | date: 'dd/MM/yyyy HH:mm' }}</td>
+          <td>{{ timesheet.dtend | date: 'dd/MM/yyyy HH:mm' }}</td>
           <td>{{ timesheet.detail }}</td>
-          <td>
-            <div *ngFor="let entry of timesheet.hoursPerDay | keyvalue">
-              <span>{{ entry.key }}: {{ entry.value }} ore</span>
-            </div>
-          </td>
+          <td>{{ timesheet.hoursWorked }} ore</td>
+          <td>{{ timesheet.workDate | date: 'dd/MM/yyyy' }}</td>
         </tr>
       </tbody>
     </table>
@@ -31,5 +29,3 @@
     <div class="alert alert-info">Caricamento dei timesheet in corso...</div>
   </ng-template>
 </div>
-
-

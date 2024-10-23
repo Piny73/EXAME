@@ -1,5 +1,5 @@
 import { Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges, TemplateRef } from '@angular/core';
-import { Activity } from '../../core/models/activity.model';
+import { Activity, ActivityDTO } from '../../core/models/activity.model';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ActivityService } from '../../core/services/activity.service';
 import { Observable, of } from 'rxjs';
@@ -20,12 +20,12 @@ export class ActivityListComponent implements OnInit, OnChanges {
 
   private modalService = inject(NgbModal);
 
-  @Output() onSelectActivity = new EventEmitter<Activity>();
+  @Output() onSelectActivity = new EventEmitter<ActivityDTO>();
   @Input() isUpdated!: number;
 
   title = 'Activity';
   activityData$!: Observable<ActivityData>;
-  selectedActivity: Activity | null = null; // Traccia l'attività selezionata singolarmente
+  selectedActivity: Activity | null = null;
 
   constructor(private activityService: ActivityService) {}
 
@@ -61,10 +61,19 @@ export class ActivityListComponent implements OnInit, OnChanges {
     );
   }
 
-// Metodo per gestire la selezione di un'attività
-selectActivity(activity: Activity): void {
-  this.onSelectActivity.emit(activity); // Emette l'evento di selezione con l'attività selezionata
-}
+  // Metodo per gestire la selezione di un'attività
+  selectActivity(activity: Activity): void {
+    const activityDTO: ActivityDTO = {
+      id: activity.id,
+      description: activity.description,
+      dtstart: activity.dtstart || new Date(),
+      dtend: activity.dtend || new Date(),
+      ownerid: activity.ownerid,
+      enable: activity.enable,
+      ownerName: activity.ownerName || ''
+    };
+    this.onSelectActivity.emit(activityDTO);
+  }
 
   // Metodo per cancellare una singola attività
   deleteActivity(activity: Activity): void {
@@ -90,7 +99,7 @@ selectActivity(activity: Activity): void {
   }
 
   // Apertura per creare una nuova attività
-  openNew(content: TemplateRef<any>){
+  openNew(content: TemplateRef<any>) {
     this.selectedActivity = null; // Resetta la selezione per una nuova attività
     this.modalService.open(content, { size: 'xl' });
   }
