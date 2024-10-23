@@ -125,15 +125,16 @@ export class TimesheetFormComponent implements OnInit {
   public resetForm(): void {
     this.timesheetForm.reset();
   }
+
   public onSubmit(): void {
     if (this.timesheetForm.valid) {
       const timesheetData: TimeSheetDTO = {
         id: this.timesheetForm.value.id || 0,
         userid: this.timesheetForm.value.userId ? parseInt(this.timesheetForm.value.userId, 10) : null,
         activityid: this.timesheetForm.value.activityId ? parseInt(this.timesheetForm.value.activityId, 10) : null,
-        dtstart: this.timesheetForm.value.dtstart ? new Date(this.timesheetForm.value.dtstart) : null, // Usa il valore come Date
-        dtend: this.timesheetForm.value.dtend ? new Date(this.timesheetForm.value.dtend) : null,       // Usa il valore come Date
-        workDate: this.timesheetForm.value.workDate ? new Date(this.timesheetForm.value.workDate) : null, // Usa il valore come Date
+        dtstart: this.timesheetForm.value.dtstart ? this.utils.formatDateForBackend(new Date(this.timesheetForm.value.dtstart)) : null,
+        dtend: this.timesheetForm.value.dtend ? this.utils.formatDateForBackend(new Date(this.timesheetForm.value.dtend)) : null,
+        workDate: this.timesheetForm.value.workDate ? this.utils.formatDateForDateInput(new Date(this.timesheetForm.value.workDate)) : null,
         detail: this.timesheetForm.value.detail,
         hoursWorked: this.timesheetForm.value.hoursWorked
       };
