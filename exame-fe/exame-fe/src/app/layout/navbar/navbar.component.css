@@ -1,0 +1,21 @@
+.custom-logout-button {
+    background-color: transparent;
+    border: none;
+  }
+  
+  .custom-logout-icon {
+    width: 90px; /* Dimensione icona */
+    height: 90px;
+  }
+  
+  .user-name {
+    font-weight: bold; /* Imposta il testo in grassetto */
+    font-size: 1.2em;  /* Aumenta la dimensione del testo */
+  }
+  .user-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 8px; /* Spazio tra l'icona e il nome */
+    vertical-align: middle; /* Allinea verticalmente l'icona con il testo */
+  }
+    
