@@ -1,14 +1,16 @@
+// timesheet-form.component.ts
+
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TimesheetService } from '../../../core/services/timesheet.service';
-import { UtilsService } from '../../../core/utils.service';
-import { TimeSheetDTO } from '../../../core/models/timesheet.model';
+import { finalize } from 'rxjs';
 import { User } from '../../../core/models/user.model';
 import { Activity, ActivityDTO } from '../../../core/models/activity.model';
+import { TimeSheetDTO } from '../../../core/models/timesheet.model';
+import { UtilsService } from '../../../core/utils.service';
 import { UserService } from '../../../core/services/user.service';
 import { ActivityService } from '../../../core/services/activity.service';
-import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-timesheet-form',
@@ -16,7 +18,6 @@ import { finalize } from 'rxjs';
   styleUrls: ['./timesheet-form.component.css']
 })
 export class TimesheetFormComponent implements OnInit {
-
 
   timesheetForm!: FormGroup;
   userList: User[] = [];
@@ -26,7 +27,6 @@ export class TimesheetFormComponent implements OnInit {
 
   @Input() timesheet: TimeSheetDTO | null = null;
   @Output() reload = new EventEmitter<boolean>();
- 
 
   constructor(
     private fb: FormBuilder,
@@ -60,34 +60,51 @@ export class TimesheetFormComponent implements OnInit {
     });
   }
 
+  // Popola il form con i dati dell'attività selezionata
   selectActivity(selectedActivity: ActivityDTO): void {
     if (!selectedActivity) {
       console.warn('Nessuna attività selezionata');
       return;
     }
+    this.timesheetForm.patchValue({
+      activityId: selectedActivity.id,
+      userId: selectedActivity.ownerid,
+      dtstart: selectedActivity.dtstart ? this.utils.formatDateForInput(selectedActivity.dtstart) : '',
+      dtend: selectedActivity.dtend ? this.utils.formatDateForInput(selectedActivity.dtend) : ''
+    });
+
+    console.log('Form popolato con dati attività:', this.timesheetForm.value);
   }
 
+  // Popola il form con i dati della timesheet selezionata
   selectTimeSheet(selectedTimeSheet: TimeSheetDTO): void {
-   if(!selectedTimeSheet){
-    console.warn('Nessuna timesheet selezionata');
-    return;
-   }
-    }
-
-  private loadTimesheetData(): void {
-    if (!this.timesheet) {
-      console.warn('Timesheet non valido o non trovato');
+    if (!selectedTimeSheet) {
+      console.warn('Nessuna timesheet selezionata');
       return;
     }
-  
-    // Popola il form con i dati del timesheet, verificando se i campi di data non sono null
+
+    const formattedWorkDate = selectedTimeSheet.workDate ? this.utils.formatDateForDateInput(selectedTimeSheet.workDate) : '';
+
+    this.timesheetForm.patchValue({
+      id: selectedTimeSheet.id,
+      workDate: formattedWorkDate,
+      hoursWorked: selectedTimeSheet.hoursWorked,
+      detail: selectedTimeSheet.detail
+    });
+
+    console.log('Form popolato con dati timesheet:', this.timesheetForm.value);
+  }
+
+  private loadTimesheetData(): void {
+    if (!this.timesheet) return;
+
     this.timesheetForm.patchValue({
       id: this.timesheet.id,
       userId: this.timesheet.userid,
       activityId: this.timesheet.activityid,
       dtstart: this.timesheet.dtstart ? this.utils.formatDateForInput(this.timesheet.dtstart) : '',
       dtend: this.timesheet.dtend ? this.utils.formatDateForInput(this.timesheet.dtend) : '',
-      workDate: this.timesheet.workDate ? this.utils.formatDateForInput(this.timesheet.workDate) : '',
+      workDate: this.timesheet.workDate ? this.utils.formatDateForDateInput(this.timesheet.workDate) : '',
       detail: this.timesheet.detail,
       hoursWorked: this.timesheet.hoursWorked
     });
@@ -97,7 +114,7 @@ export class TimesheetFormComponent implements OnInit {
     this.userService.getAllUsers()
       .pipe(finalize(() => console.log('Caricamento utenti completato')))
       .subscribe({
-        next: (data: User[]) => this.userList = data,
+        next: (data: User[]) => (this.userList = data),
         error: (error) => console.error('Errore durante il caricamento degli utenti:', error)
       });
   }
@@ -106,7 +123,7 @@ export class TimesheetFormComponent implements OnInit {
     this.activityService.fill()
       .pipe(finalize(() => console.log('Caricamento attività completato')))
       .subscribe({
-        next: (data: Activity[]) => this.activityList = data,
+        next: (data: Activity[]) => (this.activityList = data),
         error: (error) => console.error('Errore durante il caricamento delle attività:', error)
       });
   }
@@ -128,7 +145,7 @@ export class TimesheetFormComponent implements OnInit {
       activityid: parseInt(this.timesheetForm.value.activityId, 10),
       dtstart: this.utils.formatDateForBackend(new Date(this.timesheetForm.value.dtstart)),
       dtend: this.timesheetForm.value.dtend ? this.utils.formatDateForBackend(new Date(this.timesheetForm.value.dtend)) : null,
-      workDate: this.utils.formatDateForDateInput(new Date(this.timesheetForm.value.workDate)),
+      workDate: this.utils.formatDateForBackend(new Date(this.timesheetForm.value.workDate)),
       detail: this.timesheetForm.value.detail,
       hoursWorked: this.timesheetForm.value.hoursWorked
     };
@@ -164,6 +181,22 @@ export class TimesheetFormComponent implements OnInit {
     });
   }
 
+  deleteTimesheet(): void {
+    const timesheetId = this.timesheetForm.get('id')?.value;
+    if (timesheetId) {
+      this.timesheetService.deleteTimesheet(timesheetId).subscribe({
+        next: () => {
+          console.log('Timesheet eliminato con successo');
+          this.reload.emit(true);
+          this.activeModal.close();
+        },
+        error: (error) => this.handleError(error, 'Errore durante l\'eliminazione')
+      });
+    } else {
+      console.error('Errore: ID Timesheet mancante per l\'eliminazione.');
+    }
+  }
+
   private handleError(error: any, message: string): void {
     console.error(message, error);
     alert(message);
@@ -173,5 +206,14 @@ export class TimesheetFormComponent implements OnInit {
     this.showDeleteDialog = true;
     console.log('Dialog di conferma eliminazione aperta.');
   }
-}
 
+  confirmDelete(): void {
+    this.showDeleteDialog = false;
+    this.deleteTimesheet();
+  }
+
+  cancelDelete(): void {
+    this.showDeleteDialog = false;
+    console.log('Eliminazione annullata.');
+  }
+}

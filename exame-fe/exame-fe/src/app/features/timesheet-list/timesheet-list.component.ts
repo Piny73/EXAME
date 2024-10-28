@@ -3,11 +3,15 @@
 import { Component, EventEmitter, Output, OnInit } from '@angular/core';
 import { TimesheetService } from '../../core/services/timesheet.service';
 import { TimeSheetDTO } from '../../core/models/timesheet.model';
-import { ActivityService } from '../../core/services/activity.service';
-import { UserService } from '../../core/services/user.service';
-import { finalize, forkJoin } from 'rxjs';
+import { catchError, map, Observable, of, startWith } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TimesheetFormComponent } from './timesheet-form/timesheet-form.component';
+
+interface TimeSheetData {
+  loading: boolean;
+  timesheetList: TimeSheetDTO[] | null;
+  error: string | null;
+}
 
 @Component({
   selector: 'app-timesheet-list',
@@ -15,75 +19,56 @@ import { TimesheetFormComponent } from './timesheet-form/timesheet-form.componen
   styleUrls: ['./timesheet-list.component.css']
 })
 export class TimesheetListComponent implements OnInit {
-  timesheets: TimeSheetDTO[] = []; // Lista dei timesheet
-  loading: boolean = false; // Indicatore di caricamento
-  errorMessage: string = ''; // Messaggio di errore
-  selectedTimesheet: TimeSheetDTO | null = null; // Proprietà per tenere traccia del timesheet selezionato
+  timesheetData$!: Observable<TimeSheetData>; // Observable per dati caricati
+  selectedTimesheet: TimeSheetDTO | null = null;
 
-  @Output() timesheetSelected = new EventEmitter<TimeSheetDTO>(); // Output per emettere evento di selezione
+  @Output() timesheetSelected = new EventEmitter<TimeSheetDTO>();
 
   constructor(
     private timesheetService: TimesheetService,
-    private activityService: ActivityService,
-    private userService: UserService,
     private modalService: NgbModal
   ) {}
 
   ngOnInit(): void {
-    this.loadTimesheets(); // Carica i timesheet al caricamento del componente
+    this.loadTimesheets(); // Carica i dati al montaggio del componente
   }
 
-  // Carica i timesheet dal servizio, con attività e utenti associati
-  private loadTimesheets(): void {
-    this.loading = true;
-    this.errorMessage = '';
-
-    // Carica i timesheet, le attività e gli utenti contemporaneamente
-    forkJoin({
-      timesheets: this.timesheetService.getTimesheets(),
-      activities: this.activityService.fill(),
-      users: this.userService.getAllUsers()
-    })
-      .pipe(finalize(() => (this.loading = false))) // Disabilita l'indicatore di caricamento alla fine della richiesta
-      .subscribe(
-        ({ timesheets, activities, users }) => {
-          // Mappa i dati aggiungendo la descrizione dell'attività, il nome del proprietario, le ore lavorate e la data di lavoro
-          this.timesheets = timesheets.map(timesheet => ({
-            ...timesheet,
-            activityDescription: activities.find(a => a.id === timesheet.activityid)?.description || 'N/A',
-            ownerName: users.find(u => u.id === timesheet.userid)?.name || 'N/A',
-            hoursWorked: timesheet.hoursWorked, // Ore lavorate
-            workDate: timesheet.workDate // Data del giorno lavorato
-          }));
-        },
-        error => {
-          this.errorMessage = 'Errore durante il caricamento dei timesheet.';
-          console.error(this.errorMessage, error);
-        }
-      );
+  loadTimesheets(): void {
+    this.timesheetData$ = this.timesheetService.fill().pipe(
+      map((timesheets: TimeSheetDTO[]) => ({
+        loading: false,
+        timesheetList: timesheets.filter(timesheet => timesheet.canceled !== 1), // Esclude timesheet cancellate
+        error: null
+      })),
+      catchError(error => {
+        console.error('Errore durante il caricamento dei timesheet:', error);
+        return of({
+          loading: false,
+          timesheetList: null,
+          error: 'Si è verificato un errore nel caricamento dei timesheet.'
+        });
+      }),
+      startWith({ loading: true, timesheetList: null, error: null })
+    );
   }
 
-  // Gestisce la selezione di un timesheet ed emette l'evento
   selectTimesheet(timesheet: TimeSheetDTO): void {
-    this.selectedTimesheet = timesheet; // Aggiorna il timesheet selezionato
+    this.selectedTimesheet = timesheet;
     this.timesheetSelected.emit(timesheet);
     console.log('Timesheet selezionato:', timesheet);
   }
 
-  // Apre il modal per aggiungere o modificare un timesheet
   openTimesheetModal(timesheet?: TimeSheetDTO): void {
     const modalRef = this.modalService.open(TimesheetFormComponent, { size: 'lg' });
     modalRef.componentInstance.timesheet = timesheet ? { ...timesheet } : this.createEmptyTimeSheet();
 
-    // Ricarica la lista dei timesheet quando il modal è chiuso
     modalRef.componentInstance.reload.subscribe((shouldReload: boolean) => {
       if (shouldReload) {
-        this.loadTimesheets(); // Ricarica i timesheet dopo il salvataggio/modifica
+        this.loadTimesheets(); // Ricarica i dati dopo il salvataggio/modifica
       }
     });
   }
 
-  // Crea un nuovo timesheet vuoto
   private createEmptyTimeSheet(): TimeSheetDTO {
     return {
       id: 0,
@@ -92,8 +77,9 @@ export class TimesheetListComponent implements OnInit {
       dtstart: null,
       dtend: null,
       detail: '',
-      hoursWorked: 0, // Imposta il valore di default per le ore lavorate
-      workDate: null // Imposta il valore di default per la data del giorno lavorato
+      hoursWorked: 0,
+      workDate: null,
+      canceled: 0 // Assicurati che questo campo esista e sia gestito
     };
   }
 }
