@@ -29,7 +29,7 @@
           <div class="col-md-6">
             <label for="owner" class="form-label">Proprietario</label>
             <app-cb-user [selectedUser]="currentOwner" (selectedItemChange)="onOwnerSelected($event)">
-            </app-cb-user>
+            </app-cb-user>            
             <div *ngIf="activityForm.get('ownerid')?.invalid && activityForm.get('ownerid')?.touched" class="text-danger">
               Proprietario obbligatorio.
             </div>
@@ -62,17 +62,15 @@
           </div>
         </div>
 
-        <!-- Buttons -->
-        <div class="row">
-          <div class="col-md-12 d-flex justify-content-end">
-            <button type="button" class="btn btn-secondary me-2" (click)="resetForm()">Pulisci</button>
-            <button type="button" class="btn btn-danger me-2" (click)="openDeleteConfirmation()">Cancella</button>
-            <button type="submit" class="btn btn-primary">Salva</button>
-          </div>
-        </div>
-      </div>
-    </form>
+<!-- Buttons -->
+<div class="row">
+  <div class="col-md-12 d-flex justify-content-end">
+    <button type="button" class="btn btn-secondary me-2" (click)="resetForm()">Pulisci</button>
+    <button type="button" class="btn btn-danger me-2" (click)="openDeleteConfirmation()">Cancella</button>
+    <button type="submit" class="btn btn-primary">{{ isEditing ? 'Aggiorna' : 'Salva' }}</button>
   </div>
+</div>
+
 
   <!-- Save Confirmation -->
   <div id="save-confirmation" class="dialog-overlay" *ngIf="showSaveDialog">

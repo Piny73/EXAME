@@ -29,6 +29,7 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import ts.boundary.mapping.ActivityDTO;
 import ts.entity.Activity;
+import ts.entity.User;
 import ts.store.ActivityStore;
 import ts.store.UserStore;
 
@@ -123,25 +124,50 @@ public List<ActivityDTO> allActivity() {
                 .build();
     }
     
-    @PUT
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Aggiornamento Attività")
-    @APIResponses({
-        @APIResponse(responseCode = "200", description = "Attività aggiornata con successo"),
-        @APIResponse(responseCode = "404", description = "Aggiornamento falito")
-            
-    })
-    public Response updateActivity(@Valid ActivityDTO entity) {
-        Activity found = storeactivity.find(entity.id).orElseThrow(() -> new NotFoundException("Activity not founded. id=" + entity.id));
-        found.setOwner(storeuser.find(entity.ownerid).orElseThrow(() -> new NotFoundException("Activity not found. id=" + entity.ownerid)));
+@PUT
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
+@Operation(description = "Aggiornamento Attività")
+@APIResponses({
+    @APIResponse(responseCode = "200", description = "Attività aggiornata con successo"),
+    @APIResponse(responseCode = "404", description = "Attività non trovata"),
+    @APIResponse(responseCode = "500", description = "Errore interno del server")
+})
+public Response updateActivity(@Valid ActivityDTO entity) {
+    try {
+        // Trova l'attività esistente nel database
+        Activity found = storeactivity.find(entity.id)
+            .orElseThrow(() -> new NotFoundException("Activity not found. id=" + entity.id));
+        
+        // Trova l'utente associato all'attività
+        User owner = storeuser.find(entity.ownerid)
+            .orElseThrow(() -> new NotFoundException("User not found. id=" + entity.ownerid));
+        
+        // Aggiorna i campi dell'attività
+        found.setOwner(owner);
         found.setDtstart(entity.dtstart);
         found.setDtend(entity.dtend);
         found.setDescription(entity.description);
+        found.setEnable(entity.enable);
         
-        return Response.status(Response.Status.OK)
-                .build();
+        // Salva l'entità aggiornata nel database
+        storeactivity.save(found);
+        
+        // Restituisci la risposta con successo
+        return Response.status(Response.Status.OK).build();
+    } catch (NotFoundException e) {
+        // Gestisce il caso in cui l'attività o l'utente non vengono trovati
+        return Response.status(Response.Status.NOT_FOUND)
+            .entity(e.getMessage())
+            .build();
+    } catch (Exception e) {
+        // Gestisce eventuali altri errori
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+            .entity("Errore durante l'aggiornamento dell'attività: " + e.getMessage())
+            .build();
     }
+}
+
     
   @POST
   @Path("data")

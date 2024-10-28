@@ -13,12 +13,13 @@ import { UtilsService } from '../../../core/utils.service';
   styleUrls: ['./activity-form.component.css']
 })
 export class ActivityFormComponent implements OnInit {
-
+ 
   activityForm!: FormGroup;
   private activityCopy!: Activity;
   currentOwner!: number | null;
   showSaveDialog = false;
   showDeleteDialog = false;
+  isEditing = false; // Dichiara la proprietà isEditing
 
   @Input() activity!: Activity;
   @Output() reload = new EventEmitter<boolean>();
@@ -34,13 +35,14 @@ export class ActivityFormComponent implements OnInit {
     this.initializeForm();
     if (this.activity) {
       this.populateFormWithActivityData();
+      this.isEditing = true;
     }
   }
 
   private initializeForm(): void {
     this.activityForm = this.fb.group({
       id: [0],
-      description: ['', Validators.required],
+      description: ['', [Validators.required, Validators.minLength(5)]],
       ownerid: [0, Validators.required],
       dtstart: [null, Validators.required],
       dtend: [null],
@@ -53,23 +55,31 @@ export class ActivityFormComponent implements OnInit {
       console.warn('Nessuna attività selezionata');
       return;
     }
-
+  
+    // Popola il form con tutti i dati dell'attività selezionata, incluso l'ownerid
     this.activityForm.patchValue({
       id: selectedActivity.id,
       description: selectedActivity.description,
-      ownerid: selectedActivity.ownerid,
+      ownerid: selectedActivity.ownerid, // Imposta l'ID del proprietario
       dtstart: selectedActivity.dtstart ? this.utils.formatDateForInput(selectedActivity.dtstart) : null,
       dtend: selectedActivity.dtend ? this.utils.formatDateForInput(selectedActivity.dtend) : null,
       enable: selectedActivity.enable
     });
-
-    this.activityCopy = { ...selectedActivity };
-    console.log('Attività selezionata:', selectedActivity);
+  
+    // Imposta l'attività selezionata per la gestione interna
+    this.activity = selectedActivity;
+    this.isEditing = true;
+    
+    // Imposta il proprietario corrente per il componente <app-cb-user>
+    this.currentOwner = selectedActivity.ownerid; // Serve per visualizzare correttamente il proprietario
+  
+    console.log('Attività caricata nel form:', this.activityForm.value);
   }
+  
 
   private populateFormWithActivityData(): void {
     this.currentOwner = this.activity.ownerid;
-
+  
     this.activityForm.patchValue({
       id: this.activity.id || 0,
       description: this.activity.description,
@@ -78,21 +88,27 @@ export class ActivityFormComponent implements OnInit {
       dtend: this.activity.dtend ? this.utils.formatDateForInput(this.activity.dtend) : null,
       enable: this.activity.enable
     });
-
+  
     this.activityCopy = { ...this.activity };
     console.log('Form popolato con dati attività:', this.activityForm.value);
   }
 
   onSubmit(): void {
-    if (this.activityForm.valid) {
-      this.showSaveDialog = true;
-    } else {
+    if (this.activityForm.invalid) {
       console.log('Form non valido');
       this.activityForm.markAllAsTouched();
+      return;
     }
+    this.showSaveDialog = true;
   }
 
   save(): void {
+    if (this.activityForm.invalid) {
+      console.warn('Il form non è valido per il salvataggio.');
+      this.activityForm.markAllAsTouched();
+      return;
+    }
+
     const activityData = {
       ...this.activityForm.value,
       dtstart: this.activityForm.value.dtstart ? this.utils.formatDateForBackend(new Date(this.activityForm.value.dtstart)) : null,
@@ -103,21 +119,28 @@ export class ActivityFormComponent implements OnInit {
     console.log('Payload inviato:', activityData);
 
     if (activityData.id) {
+      console.log('Aggiornamento attività con ID:', activityData.id);
       this.updateActivity(activityData);
     } else {
+      console.log('Creazione di una nuova attività');
       this.createActivity(activityData);
     }
   }
 
   private updateActivity(activityData: any): void {
+    if (!activityData.id || activityData.id === 0) {
+      console.warn('ID attività non valido:', activityData.id);
+      return;
+    }
+
     this.activityService.update(activityData).subscribe({
-      next: () => {
-        console.log('Aggiornamento completato');
+      next: (response) => {
+        console.log('Aggiornamento completato:', response);
         this.reload.emit(true);
         this.activeModal.close();
       },
       error: (error) => {
-        console.error('Errore durante l\'aggiornamento', error);
+        console.error('Errore durante l\'aggiornamento:', error);
         alert('Errore durante l\'aggiornamento.');
       }
     });
@@ -158,8 +181,9 @@ export class ActivityFormComponent implements OnInit {
 
   onOwnerSelected(event: number): void {
     this.activityForm.patchValue({ ownerid: event });
-    console.log('Proprietario selezionato:', event);
+    console.log('Proprietario selezionato con ID:', event);
   }
+  
 
   openDeleteConfirmation(): void {
     this.showDeleteDialog = true;
@@ -195,6 +219,7 @@ export class ActivityFormComponent implements OnInit {
       dtend: null,
       enable: false
     });
-    console.log('Form resettato.');
+    this.isEditing = false;
+    console.log('Form resettato. Modalità modifica disattivata.');
   }
 }

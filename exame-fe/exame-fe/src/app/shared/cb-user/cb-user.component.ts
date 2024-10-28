@@ -5,29 +5,27 @@ import { User } from '../../core/models/user.model';
 @Component({
   selector: 'app-cb-user',
   templateUrl: './cb-user.component.html',
-  styleUrl: './cb-user.component.css'
+  styleUrls: ['./cb-user.component.css']
 })
 export class CbUserComponent implements OnInit {
 
-  @Input("selectedUser") selectedItem : number | null = null;
-  @Output("selectedItemChange") selectedItemChange: EventEmitter<number> = new EventEmitter<number>();         
+  @Input("selectedUser") selectedItem: number | null = null; // ID del proprietario selezionato
+  @Output("selectedItemChange") selectedItemChange: EventEmitter<number> = new EventEmitter<number>();
   userList: User[] = [];   
 
   constructor(private userService: UserService) {}
 
   ngOnInit(): void {
-      this.userList = this.userService.getUserList();
+    // Carica la lista degli utenti al momento dell'inizializzazione
+    this.userList = this.userService.getUserList();
   }
 
-  onSelected(event: any) {
-    if (event.target.value) {
-      const selectedId = event.target.value;
-      this.selectedItem = this.userList.find(us => us.id === parseInt(selectedId, 10))?.id|| 0;
-      this.selectedItemChange.emit(this.selectedItem);
-    }
-    else{
-      this.selectedItem = -1;
-      this.selectedItemChange.emit(this.selectedItem);
-    }
-  } 
+  // Gestisce la selezione dell'utente dal menu a tendina
+  onSelected(event: any): void {
+    const selectedId = event.target.value ? parseInt(event.target.value, 10) : null;
+    this.selectedItem = selectedId;
+
+    // Emetti il valore selezionato o -1 se non è valido
+    this.selectedItemChange.emit(this.selectedItem ?? -1);
+  }
 }

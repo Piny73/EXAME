@@ -25,8 +25,9 @@
           </td>
           <td>{{ ac.description }}</td>
           <td>{{ ac.ownerName }}</td>
-          <td>{{ ac.dtstart | date: 'short' }}</td>
-          <td>{{ ac.dtend | date: 'short' }}</td>
+          <!-- Utilizza DatePipe per formattare le date nel formato dd/MM/yyyy, HH:mm -->
+          <td>{{ ac.dtstart | date: 'dd/MM/yyyy, HH:mm' }}</td>
+          <td>{{ ac.dtend | date: 'dd/MM/yyyy, HH:mm' }}</td>
         </tr>
       </tbody>
     </table>
@@ -36,4 +37,5 @@
     </div>
   </ng-container>
 </div>
+
 
