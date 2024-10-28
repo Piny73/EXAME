@@ -1,5 +1,3 @@
-// src/app/features/activity-list/activity-form/activity-form.component.ts
-
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -13,13 +11,13 @@ import { UtilsService } from '../../../core/utils.service';
   styleUrls: ['./activity-form.component.css']
 })
 export class ActivityFormComponent implements OnInit {
- 
+  
   activityForm!: FormGroup;
   private activityCopy!: Activity;
   currentOwner!: number | null;
   showSaveDialog = false;
   showDeleteDialog = false;
-  isEditing = false; // Dichiara la proprietà isEditing
+  isEditing = false;
 
   @Input() activity!: Activity;
   @Output() reload = new EventEmitter<boolean>();
@@ -46,7 +44,8 @@ export class ActivityFormComponent implements OnInit {
       ownerid: [0, Validators.required],
       dtstart: [null, Validators.required],
       dtend: [null],
-      enable: [false]
+      enable: [false],
+      ownerName: [''] 
     });
   }
 
@@ -55,40 +54,37 @@ export class ActivityFormComponent implements OnInit {
       console.warn('Nessuna attività selezionata');
       return;
     }
-  
-    // Popola il form con tutti i dati dell'attività selezionata, incluso l'ownerid
+
     this.activityForm.patchValue({
       id: selectedActivity.id,
       description: selectedActivity.description,
-      ownerid: selectedActivity.ownerid, // Imposta l'ID del proprietario
+      ownerid: selectedActivity.ownerid,
       dtstart: selectedActivity.dtstart ? this.utils.formatDateForInput(selectedActivity.dtstart) : null,
       dtend: selectedActivity.dtend ? this.utils.formatDateForInput(selectedActivity.dtend) : null,
-      enable: selectedActivity.enable
+      enable: selectedActivity.enable,
+      ownerName: selectedActivity.ownerName
     });
-  
-    // Imposta l'attività selezionata per la gestione interna
+
     this.activity = selectedActivity;
     this.isEditing = true;
-    
-    // Imposta il proprietario corrente per il componente <app-cb-user>
-    this.currentOwner = selectedActivity.ownerid; // Serve per visualizzare correttamente il proprietario
-  
+    this.currentOwner = selectedActivity.ownerid;
+
     console.log('Attività caricata nel form:', this.activityForm.value);
   }
-  
 
   private populateFormWithActivityData(): void {
     this.currentOwner = this.activity.ownerid;
-  
+
     this.activityForm.patchValue({
       id: this.activity.id || 0,
       description: this.activity.description,
       ownerid: this.activity.ownerid,
       dtstart: this.activity.dtstart ? this.utils.formatDateForInput(this.activity.dtstart) : null,
       dtend: this.activity.dtend ? this.utils.formatDateForInput(this.activity.dtend) : null,
-      enable: this.activity.enable
+      enable: this.activity.enable,
+      ownerName: this.activity.ownerName
     });
-  
+
     this.activityCopy = { ...this.activity };
     console.log('Form popolato con dati attività:', this.activityForm.value);
   }
@@ -113,7 +109,8 @@ export class ActivityFormComponent implements OnInit {
       ...this.activityForm.value,
       dtstart: this.activityForm.value.dtstart ? this.utils.formatDateForBackend(new Date(this.activityForm.value.dtstart)) : null,
       dtend: this.activityForm.value.dtend ? this.utils.formatDateForBackend(new Date(this.activityForm.value.dtend)) : null,
-      enable: this.activityForm.value.enable !== undefined ? this.activityForm.value.enable : false
+      enable: this.activityForm.value.enable !== undefined ? this.activityForm.value.enable : false,
+      ownerName: this.activityForm.value.ownerName,
     };
 
     console.log('Payload inviato:', activityData);
@@ -183,7 +180,6 @@ export class ActivityFormComponent implements OnInit {
     this.activityForm.patchValue({ ownerid: event });
     console.log('Proprietario selezionato con ID:', event);
   }
-  
 
   openDeleteConfirmation(): void {
     this.showDeleteDialog = true;
@@ -217,8 +213,8 @@ export class ActivityFormComponent implements OnInit {
       ownerid: null,
       dtstart: null,
       dtend: null,
-      enable: false
-    });
+      enable: false,
+      ownerName: null    });
     this.isEditing = false;
     console.log('Form resettato. Modalità modifica disattivata.');
   }

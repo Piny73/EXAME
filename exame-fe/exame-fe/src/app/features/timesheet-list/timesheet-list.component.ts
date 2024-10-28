@@ -18,6 +18,7 @@ export class TimesheetListComponent implements OnInit {
   timesheets: TimeSheetDTO[] = []; // Lista dei timesheet
   loading: boolean = false; // Indicatore di caricamento
   errorMessage: string = ''; // Messaggio di errore
+  selectedTimesheet: TimeSheetDTO | null = null; // Proprietà per tenere traccia del timesheet selezionato
 
   @Output() timesheetSelected = new EventEmitter<TimeSheetDTO>(); // Output per emettere evento di selezione
 
@@ -64,6 +65,7 @@ export class TimesheetListComponent implements OnInit {
 
   // Gestisce la selezione di un timesheet ed emette l'evento
   selectTimesheet(timesheet: TimeSheetDTO): void {
+    this.selectedTimesheet = timesheet; // Aggiorna il timesheet selezionato
     this.timesheetSelected.emit(timesheet);
     console.log('Timesheet selezionato:', timesheet);
   }

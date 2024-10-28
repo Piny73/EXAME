@@ -3,6 +3,7 @@
     <table *ngIf="timesheets.length > 0" class="table table-striped table-sm">
       <thead>
         <tr>
+          <th scope="col">Seleziona</th>
           <th scope="col">Data Inizio</th>
           <th scope="col">Data Fine</th>
           <th scope="col">Dettaglio</th>
@@ -12,6 +13,11 @@
       </thead>
       <tbody>
         <tr *ngFor="let timesheet of timesheets">
+          <td>
+            <input type="radio" name="selectedTimeSheet" 
+                   (change)="selectTimesheet(timesheet)" 
+                   [checked]="selectedTimesheet === timesheet"/>
+          </td>
           <td>{{ timesheet.dtstart | date: 'dd/MM/yyyy HH:mm' }}</td>
           <td>{{ timesheet.dtend | date: 'dd/MM/yyyy HH:mm' }}</td>
           <td>{{ timesheet.detail }}</td>

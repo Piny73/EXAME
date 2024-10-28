@@ -1,5 +1,3 @@
-// src/app/services/activity.service.ts
-
 import { Injectable } from '@angular/core';
 import { ApiService } from '../api.service';
 import { Activity } from '../models/activity.model';
@@ -11,14 +9,12 @@ import { catchError, map, tap } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class ActivityService {
-
+  
   private readonly endpoint = 'activity'; // Endpoint per le attività
   private activityList: Activity[] = []; // Cache locale delle attività
   private activitySelected!: Activity; // Memorizza l'attività selezionata
 
-  constructor(
-    private apiService: ApiService
-  ) {}
+  constructor(private apiService: ApiService) {}
 
   // Metodo per salvare una nuova attività
   save(activity: Activity): Observable<Activity> {

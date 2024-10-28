@@ -5,9 +5,10 @@ import { TimesheetService } from '../../../core/services/timesheet.service';
 import { UtilsService } from '../../../core/utils.service';
 import { TimeSheetDTO } from '../../../core/models/timesheet.model';
 import { User } from '../../../core/models/user.model';
-import { Activity } from '../../../core/models/activity.model';
+import { Activity, ActivityDTO } from '../../../core/models/activity.model';
 import { UserService } from '../../../core/services/user.service';
 import { ActivityService } from '../../../core/services/activity.service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-timesheet-form',
@@ -16,12 +17,16 @@ import { ActivityService } from '../../../core/services/activity.service';
 })
 export class TimesheetFormComponent implements OnInit {
 
+
   timesheetForm!: FormGroup;
   userList: User[] = [];
   activityList: Activity[] = [];
+  isEditing = false;
+  showDeleteDialog = false;
 
   @Input() timesheet: TimeSheetDTO | null = null;
   @Output() reload = new EventEmitter<boolean>();
+ 
 
   constructor(
     private fb: FormBuilder,
@@ -34,6 +39,7 @@ export class TimesheetFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.initializeForm();
+    this.isEditing = !!this.timesheet;
     if (this.timesheet) {
       this.loadTimesheetData();
     }
@@ -54,48 +60,27 @@ export class TimesheetFormComponent implements OnInit {
     });
   }
 
-  selectTimeSheet(selectedTimesheet: TimeSheetDTO): void {
-    if (!selectedTimesheet) {
-      console.warn('Nessun timesheet selezionato');
-      return;
-    }
-
-    // Carica i dati del timesheet selezionato nel form
-    this.timesheetForm.patchValue({
-      id: selectedTimesheet.id,
-      userId: selectedTimesheet.userid,
-      activityId: selectedTimesheet.activityid,
-      dtstart: selectedTimesheet.dtstart ? this.utils.formatDateForInput(selectedTimesheet.dtstart) : '',
-      dtend: selectedTimesheet.dtend ? this.utils.formatDateForInput(selectedTimesheet.dtend) : '',
-      workDate: selectedTimesheet.workDate ? this.utils.formatDateForInput(selectedTimesheet.workDate) : '',
-      detail: selectedTimesheet.detail,
-      hoursWorked: selectedTimesheet.hoursWorked
-    });
-
-    console.log('Timesheet selezionato:', selectedTimesheet);
-  }
-
-  selectActivity(selectedActivity: Activity): void {
+  selectActivity(selectedActivity: ActivityDTO): void {
     if (!selectedActivity) {
       console.warn('Nessuna attività selezionata');
       return;
     }
-
-    // Aggiorna il campo activityId del form con l'attività selezionata
-    this.timesheetForm.patchValue({
-      activityId: selectedActivity.id
-    });
-
-    console.log('Attività selezionata:', selectedActivity);
   }
+
+  selectTimeSheet(selectedTimeSheet: TimeSheetDTO): void {
+   if(!selectedTimeSheet){
+    console.warn('Nessuna timesheet selezionata');
+    return;
+   }
+    }
 
   private loadTimesheetData(): void {
     if (!this.timesheet) {
       console.warn('Timesheet non valido o non trovato');
       return;
     }
-
-    // Patch dei valori al form, convertendo i tipi Date in stringhe formattate per i controlli di input
+  
+    // Popola il form con i dati del timesheet, verificando se i campi di data non sono null
     this.timesheetForm.patchValue({
       id: this.timesheet.id,
       userId: this.timesheet.userid,
@@ -108,47 +93,53 @@ export class TimesheetFormComponent implements OnInit {
     });
   }
 
-  public loadUsers(): void {
-    this.userService.getAllUsers().subscribe({
-      next: (data: User[]) => this.userList = data,
-      error: (error) => console.error('Errore durante il caricamento degli utenti:', error)
-    });
+  private loadUsers(): void {
+    this.userService.getAllUsers()
+      .pipe(finalize(() => console.log('Caricamento utenti completato')))
+      .subscribe({
+        next: (data: User[]) => this.userList = data,
+        error: (error) => console.error('Errore durante il caricamento degli utenti:', error)
+      });
   }
 
-  public loadActivities(): void {
-    this.activityService.fill().subscribe({
-      next: (data: Activity[]) => this.activityList = data,
-      error: (error) => console.error('Errore durante il caricamento delle attività:', error)
-    });
+  private loadActivities(): void {
+    this.activityService.fill()
+      .pipe(finalize(() => console.log('Caricamento attività completato')))
+      .subscribe({
+        next: (data: Activity[]) => this.activityList = data,
+        error: (error) => console.error('Errore durante il caricamento delle attività:', error)
+      });
   }
 
-  public resetForm(): void {
+  resetForm(): void {
     this.timesheetForm.reset();
+    this.isEditing = false;
   }
 
-  public onSubmit(): void {
-    if (this.timesheetForm.valid) {
-      const timesheetData: TimeSheetDTO = {
-        id: this.timesheetForm.value.id || 0,
-        userid: this.timesheetForm.value.userId ? parseInt(this.timesheetForm.value.userId, 10) : null,
-        activityid: this.timesheetForm.value.activityId ? parseInt(this.timesheetForm.value.activityId, 10) : null,
-        dtstart: this.timesheetForm.value.dtstart ? this.utils.formatDateForBackend(new Date(this.timesheetForm.value.dtstart)) : null,
-        dtend: this.timesheetForm.value.dtend ? this.utils.formatDateForBackend(new Date(this.timesheetForm.value.dtend)) : null,
-        workDate: this.timesheetForm.value.workDate ? this.utils.formatDateForDateInput(new Date(this.timesheetForm.value.workDate)) : null,
-        detail: this.timesheetForm.value.detail,
-        hoursWorked: this.timesheetForm.value.hoursWorked
-      };
-  
-      if (timesheetData.id) {
-        this.updateTimesheet(timesheetData);
-      } else {
-        this.createTimesheet(timesheetData);
-      }
-    } else {
+  onSubmit(): void {
+    if (this.timesheetForm.invalid) {
       this.timesheetForm.markAllAsTouched();
+      return;
+    }
+
+    const timesheetData: TimeSheetDTO = {
+      id: this.timesheetForm.value.id || 0,
+      userid: parseInt(this.timesheetForm.value.userId, 10),
+      activityid: parseInt(this.timesheetForm.value.activityId, 10),
+      dtstart: this.utils.formatDateForBackend(new Date(this.timesheetForm.value.dtstart)),
+      dtend: this.timesheetForm.value.dtend ? this.utils.formatDateForBackend(new Date(this.timesheetForm.value.dtend)) : null,
+      workDate: this.utils.formatDateForDateInput(new Date(this.timesheetForm.value.workDate)),
+      detail: this.timesheetForm.value.detail,
+      hoursWorked: this.timesheetForm.value.hoursWorked
+    };
+
+    if (timesheetData.id) {
+      this.updateTimesheet(timesheetData);
+    } else {
+      this.createTimesheet(timesheetData);
     }
   }
-  
+
   private createTimesheet(timesheetData: TimeSheetDTO): void {
     console.log('Payload inviato per la creazione:', timesheetData);
     this.timesheetService.save(timesheetData).subscribe({
@@ -177,4 +168,10 @@ export class TimesheetFormComponent implements OnInit {
     console.error(message, error);
     alert(message);
   }
+
+  openDeleteConfirmation(): void {
+    this.showDeleteDialog = true;
+    console.log('Dialog di conferma eliminazione aperta.');
+  }
 }
+
