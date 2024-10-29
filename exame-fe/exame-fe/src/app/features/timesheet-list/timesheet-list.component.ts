@@ -37,7 +37,7 @@ export class TimesheetListComponent implements OnInit {
     this.timesheetData$ = this.timesheetService.fill().pipe(
       map((timesheets: TimeSheetDTO[]) => ({
         loading: false,
-        timesheetList: timesheets.filter(timesheet => timesheet.canceled !== 1), // Esclude timesheet cancellate
+        timesheetList: timesheets,
         error: null
       })),
       catchError(error => {
@@ -78,8 +78,7 @@ export class TimesheetListComponent implements OnInit {
       dtend: null,
       detail: '',
       hoursWorked: 0,
-      workDate: null,
-      canceled: 0 // Assicurati che questo campo esista e sia gestito
+      workDate: null
     };
   }
 }

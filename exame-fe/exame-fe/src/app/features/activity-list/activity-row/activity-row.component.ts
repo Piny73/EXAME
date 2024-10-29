@@ -1,3 +1,4 @@
+//activity-row.component.ts
 import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
 import { Activity } from '../../../core/models/activity.model';
 import { User } from '../../../core/models/user.model';
@@ -65,5 +66,4 @@ export class ActivityRowComponent implements OnInit {
       console.warn('Activity is not defined.');
     }
   }
-
 }

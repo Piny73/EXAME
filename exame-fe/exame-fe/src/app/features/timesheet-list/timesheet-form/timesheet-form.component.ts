@@ -7,7 +7,7 @@ import { TimesheetService } from '../../../core/services/timesheet.service';
 import { finalize } from 'rxjs';
 import { User } from '../../../core/models/user.model';
 import { Activity, ActivityDTO } from '../../../core/models/activity.model';
-import { TimeSheetDTO } from '../../../core/models/timesheet.model';
+import { TimeSheet, TimeSheetDTO } from '../../../core/models/timesheet.model';
 import { UtilsService } from '../../../core/utils.service';
 import { UserService } from '../../../core/services/user.service';
 import { ActivityService } from '../../../core/services/activity.service';
@@ -23,9 +23,10 @@ export class TimesheetFormComponent implements OnInit {
   userList: User[] = [];
   activityList: Activity[] = [];
   isEditing = false;
+  showSaveDialog = false;
   showDeleteDialog = false;
 
-  @Input() timesheet: TimeSheetDTO | null = null;
+  @Input() timesheet!: TimeSheet;
   @Output() reload = new EventEmitter<boolean>();
 
   constructor(
@@ -135,49 +136,66 @@ export class TimesheetFormComponent implements OnInit {
 
   onSubmit(): void {
     if (this.timesheetForm.invalid) {
+      console.log('Form non valido');
       this.timesheetForm.markAllAsTouched();
       return;
     }
+    this.showSaveDialog = true;
+  }
 
-    const timesheetData: TimeSheetDTO = {
+  save(): void {
+    if (this.timesheetForm.invalid) {
+      console.warn('Il form non è valido per il salvataggio.');
+      this.timesheetForm.markAllAsTouched();
+      return;
+    }
+    const timesheetData = {
       id: this.timesheetForm.value.id || 0,
       userid: parseInt(this.timesheetForm.value.userId, 10),
       activityid: parseInt(this.timesheetForm.value.activityId, 10),
-      dtstart: this.utils.formatDateForBackend(new Date(this.timesheetForm.value.dtstart)),
-      dtend: this.timesheetForm.value.dtend ? this.utils.formatDateForBackend(new Date(this.timesheetForm.value.dtend)) : null,
-      workDate: this.utils.formatDateForBackend(new Date(this.timesheetForm.value.workDate)),
+      dtstart: this.timesheetForm.value.dtstart ? this.utils.formatDateForBackend(new Date(this.timesheetForm.value.dtstart)): null,
+      dtend: this.timesheetForm.value.dtend ? this.utils.formatDateForBackend(new Date(this.timesheetForm.value.dtend)): null,
+      workDate: this.timesheetForm.value.workDate ? this.utils.formatDateForDateInput(new Date(this.timesheetForm.value.workDate)): null,
       detail: this.timesheetForm.value.detail,
       hoursWorked: this.timesheetForm.value.hoursWorked
     };
-
     if (timesheetData.id) {
+      console.log('Aggiornamento timesheet con ID:', timesheetData.id);
       this.updateTimesheet(timesheetData);
     } else {
-      this.createTimesheet(timesheetData);
+      console.log('Creazione di una nuova timesheet');
+      this.createTimeSheet(timesheetData);
     }
   }
 
-  private createTimesheet(timesheetData: TimeSheetDTO): void {
-    console.log('Payload inviato per la creazione:', timesheetData);
-    this.timesheetService.save(timesheetData).subscribe({
-      next: () => {
-        console.log('Creazione completata con successo');
+  private updateTimesheet(timesheetData: any): void {
+    if (!timesheetData.id || timesheetData.id === 0) {
+      console.warn('ID timesheet non valido:', timesheetData.id);
+      return;
+    }
+    this.timesheetService.update(timesheetData).subscribe({
+      next: (response) => {
+        console.log('Aggiornamento completato:', response);
         this.reload.emit(true);
         this.activeModal.close();
       },
-      error: (error) => this.handleError(error, 'Errore durante la creazione')
+      error: (error) => {
+        console.error('Errore durante l\'aggiornamento:', error);
+        alert('Errore durante l\'aggiornamento.');
+      }
     });
   }
-
-  private updateTimesheet(timesheetData: TimeSheetDTO): void {
-    console.log('Payload inviato per l\'aggiornamento:', timesheetData);
-    this.timesheetService.updateTimesheet(timesheetData).subscribe({
+  private createTimeSheet(timesheetData: any): void {
+    this.timesheetService.save(timesheetData).subscribe({
       next: () => {
-        console.log('Aggiornamento completato con successo');
+        console.log('Creazione completata');
         this.reload.emit(true);
         this.activeModal.close();
       },
-      error: (error) => this.handleError(error, 'Errore durante l\'aggiornamento')
+      error: (error: any) => {
+        console.error('Errore durante la creazione', error);
+        alert('Errore durante la creazione.');
+      }
     });
   }
 

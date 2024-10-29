@@ -1,34 +1,38 @@
 <div class="table-responsive">
-  <ng-container *ngIf="!loading; else loadingTemplate">
-    <table *ngIf="timesheets.length > 0" class="table table-striped table-sm">
-      <thead>
-        <tr>
-          <th scope="col">Seleziona</th>
-          <th scope="col">Data Inizio</th>
-          <th scope="col">Data Fine</th>
-          <th scope="col">Dettaglio</th>
-          <th scope="col">Ore Lavorate</th>
-          <th scope="col">Data di Lavoro</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let timesheet of timesheets">
-          <td>
-            <input type="radio" name="selectedTimeSheet" 
-                   (change)="selectTimesheet(timesheet)" 
-                   [checked]="selectedTimesheet === timesheet"/>
-          </td>
-          <td>{{ timesheet.dtstart | date: 'dd/MM/yyyy HH:mm' }}</td>
-          <td>{{ timesheet.dtend | date: 'dd/MM/yyyy HH:mm' }}</td>
-          <td>{{ timesheet.detail }}</td>
-          <td>{{ timesheet.hoursWorked }} ore</td>
-          <td>{{ timesheet.workDate | date: 'dd/MM/yyyy' }}</td>
-        </tr>
-      </tbody>
-    </table>
-    <div *ngIf="timesheets.length === 0" class="alert alert-warning">
-      Nessun timesheet trovato
-    </div>
+  <ng-container *ngIf="timesheetData$ | async as data">
+    <ng-container *ngIf="!data.loading; else loadingTemplate">
+      <table *ngIf="data.timesheetList && data.timesheetList.length > 0" class="table table-striped table-sm">
+        <thead>
+          <tr>
+            <th scope="col">Seleziona</th>
+            <th scope="col">Data Inizio</th>
+            <th scope="col">Data Fine</th>
+            <th scope="col">Dettaglio</th>
+            <th scope="col">Ore Lavorate</th>
+            <th scope="col">Data di Lavoro</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let timesheet of data.timesheetList">
+            <td>
+              <input 
+                type="radio" 
+                name="selectedTimeSheet" 
+                (change)="selectTimesheet(timesheet)" 
+                [checked]="selectedTimesheet === timesheet" />
+            </td>
+            <td>{{ timesheet.dtstart | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ timesheet.dtend | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ timesheet.detail }}</td>
+            <td>{{ timesheet.hoursWorked }} ore</td>
+            <td>{{ timesheet.workDate | date: 'dd/MM/yyyy' }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="data.timesheetList && data.timesheetList.length === 0" class="alert alert-warning">
+        Nessun timesheet trovato
+      </div>
+    </ng-container>
   </ng-container>
 
   <ng-template #loadingTemplate>

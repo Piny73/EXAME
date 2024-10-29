@@ -130,7 +130,6 @@ export class ActivityFormComponent implements OnInit {
       console.warn('ID attività non valido:', activityData.id);
       return;
     }
-
     this.activityService.update(activityData).subscribe({
       next: (response) => {
         console.log('Aggiornamento completato:', response);

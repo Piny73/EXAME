@@ -4,15 +4,16 @@ import { Injectable } from '@angular/core';
 import { HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
-import { TimeSheetDTO } from '../models/timesheet.model';
+import { TimeSheet, TimeSheetDTO } from '../models/timesheet.model';
 import { ApiService } from '../api.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TimesheetService {
-  private readonly endpoint = 'timesheet';
 
+  private readonly endpoint = 'timesheet';
+  private timesheetList: TimeSheet[] = [];
   constructor(private apiService: ApiService) {}
 
   /**
@@ -48,14 +49,16 @@ export class TimesheetService {
     );
   }
 
-  /**
-   * Aggiorna un Timesheet esistente.
-   * @param timesheetData I dati del Timesheet da aggiornare.
-   * @returns Un Observable che emette il TimeSheetDTO aggiornato.
-   */
-  updateTimesheet(timesheetData: TimeSheetDTO): Observable<TimeSheetDTO> {
+  // Metodo per aggiornare un'attività esistente
+  update(timesheet:TimeSheet): Observable<TimeSheet> {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.apiService.put<TimeSheetDTO>(`${this.endpoint}/${timesheetData.id}`, timesheetData, headers).pipe(
+    return this.apiService.put<TimeSheet>(`${this.endpoint}/${timesheet.id}`, timesheet, headers).pipe(
+      tap(response => {
+        const index = this.timesheetList.findIndex(t => t.id === timesheet.id);
+        if (index > -1) {
+          this.timesheetList[index] = response; // Aggiorna la cache
+        }
+      }),
       catchError(this.handleError)
     );
   }
@@ -75,22 +78,21 @@ export class TimesheetService {
    * Carica tutti i Timesheet, convertendo i campi data in oggetti `Date`.
    * @returns Un Observable che emette un array di TimeSheetDTO.
    */
-  fill(): Observable<TimeSheetDTO[]> {
+  fill(): Observable<TimeSheet[]> {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.apiService.get<TimeSheetDTO[]>(this.endpoint, headers).pipe(
-      map((timesheets: TimeSheetDTO[]) => 
-        timesheets.map(timesheet => ({
+    return this.apiService.get<TimeSheet[]>(this.endpoint, headers).pipe(
+      map((timesheets: TimeSheet[]) => {
+        return timesheets.map(timesheet => ({
           ...timesheet,
           dtstart: timesheet.dtstart ? new Date(timesheet.dtstart) : null,
           dtend: timesheet.dtend ? new Date(timesheet.dtend) : null,
           workDate: timesheet.workDate ? new Date(timesheet.workDate) : null
         }))
-      ),
-      tap((response: TimeSheetDTO[]) => console.log('Timesheets loaded:', response)),
+      }),
+      tap((response: TimeSheet[]) => console.log('Timesheets loaded:', response)),
       catchError(this.handleError)
     );
-  }
-
+}
   /**
    * Metodo di gestione degli errori
    * @param error L'errore occorso.
