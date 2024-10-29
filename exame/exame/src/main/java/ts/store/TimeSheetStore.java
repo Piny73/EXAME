@@ -10,6 +10,7 @@ import ts.entity.TimeSheet;
 @RequestScoped
 @Transactional(Transactional.TxType.REQUIRED)
 public class TimeSheetStore extends BaseStore<TimeSheet> {
+    
 
     /**
      * Recupera tutti i timesheet per un dato utente che non sono stati annullati.
@@ -50,14 +51,15 @@ public class TimeSheetStore extends BaseStore<TimeSheet> {
      * @param activityId ID dell'attività.
      * @return il totale delle ore lavorate per l'attività specificata.
      */
-    public int getTotalHoursByActivity(Long activityId) {
-        TypedQuery<Integer> query = getEm().createQuery(
-            "SELECT SUM(ts.hoursWorked) FROM TimeSheet ts WHERE ts.activity.id = :activityId AND ts.enable = true",
-            Integer.class
-        );
-        query.setParameter("activityId", activityId);
-        Integer totalHours = query.getSingleResult();
+ public int getTotalHoursByActivity(Long activityId) {
+    TypedQuery<Long> query = getEm().createQuery(
+        "SELECT SUM(t.hoursWorked) FROM TimeSheet t WHERE t.activity.id = :activityId AND t.canceled = false AND t.enable = true",
+        Long.class
+    );
+    query.setParameter("activityId", activityId);
+    
+    Long totalHours = query.getSingleResult();
+    return totalHours != null ? totalHours.intValue() : 0;
+}
 
-        return totalHours != null ? totalHours : 0;
-    }
 }

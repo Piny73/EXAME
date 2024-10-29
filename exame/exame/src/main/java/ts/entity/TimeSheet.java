@@ -11,6 +11,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -19,10 +20,15 @@ import ts.entity.adapter.LocalDateTimeAdapter;
 
 @Entity
 @Table(name = "timesheet")
+@NamedQuery(
+    name = "TimeSheet.getTotalHoursByActivity",
+    query = "SELECT SUM(t.hoursWorked) FROM TimeSheet t WHERE t.activity.id = :activityId AND t.canceled = false AND t.enable = true"
+)
+
 public class TimeSheet extends BaseEntity {
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "activity_id", nullable = false)
+    @JoinColumn(name = "activity_Id", nullable = false) // Nome esatto della colonna nel DB
     private Activity activity;
 
     @ManyToOne(optional = false)
@@ -47,14 +53,14 @@ public class TimeSheet extends BaseEntity {
     private boolean enable;
 
     @NotNull
-    @Column(name = "hours_worked", nullable = false)
-    private Integer hoursWorked;  // Numero di ore lavorate
+    @Column(name = "hours_Worked", nullable = false) // Nome esatto della colonna nel DB
+    private Integer hoursWorked;
 
     @NotNull
     @Column(name = "work_date", nullable = false)
-    private LocalDate workDate;  // Data del giorno lavorato
+    private LocalDate workDate;
 
-    // Getters e Setters
+    // Getters e Setters...
 
     public Activity getActivity() {
         return activity;
@@ -123,5 +129,5 @@ public class TimeSheet extends BaseEntity {
     public TimeSheet() {
     }
     
-    
 }
+

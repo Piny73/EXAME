@@ -16,6 +16,11 @@ export class ActivityService {
 
   constructor(private apiService: ApiService) {}
 
+    // Metodo per ottenere il totale delle ore per una singola attività
+    getTotalHoursByActivity(activityId: number): Observable<number> {
+      return this.apiService.get<number>(`${this.endpoint}/activity/${activityId}/totalHours`);
+    }
+
   // Metodo per salvare una nuova attività
   save(activity: Activity): Observable<Activity> {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });

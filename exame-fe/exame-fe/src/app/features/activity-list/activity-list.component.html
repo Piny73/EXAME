@@ -17,6 +17,7 @@
           <th scope="col">Proprietario</th>
           <th scope="col">Data Inizio</th>
           <th scope="col">Data Fine</th>
+          <th scope="col">Totale Ore Lavorate</th> <!-- Aggiungi la colonna Totale Ore -->
         </tr>
       </thead>
       <tbody>
@@ -26,17 +27,16 @@
           </td>
           <td>{{ ac.description }}</td>
           <td>{{ ac.ownerName }}</td>
-          <!-- Utilizza DatePipe per formattare le date nel formato dd/MM/yyyy, HH:mm -->
           <td>{{ ac.dtstart | date: 'dd/MM/yyyy, HH:mm' }}</td>
           <td>{{ ac.dtend | date: 'dd/MM/yyyy, HH:mm' }}</td>
+          <td>{{ totalHoursMap[ac.id] || 0 }} ore</td> <!-- Visualizza le ore totali -->
         </tr>
       </tbody>
     </table>
+    
 
     <div *ngIf="!activityData.loading && !activityData.activityList?.length" class="alert alert-warning">
       Nessuna attività da caricare
     </div>
   </ng-container>
 </div>
-
-

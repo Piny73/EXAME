@@ -115,18 +115,35 @@ public class TimeSheetResources {
 
         return Response.ok(timeSheetList).build();
     }
-    @GET
+@GET
 @Path("activity/{activityId}/totalHours")
 @Produces(MediaType.APPLICATION_JSON)
 @Operation(description = "Restituisce il totale delle ore lavorate per una specifica attività")
 @APIResponses({
     @APIResponse(responseCode = "200", description = "Totale ore ritornato con successo"),
-    @APIResponse(responseCode = "404", description = "Attività non trovata")
+    @APIResponse(responseCode = "404", description = "Attività non trovata"),
+    @APIResponse(responseCode = "500", description = "Errore nel calcolo delle ore totali")
 })
 public Response getTotalHoursByActivity(@PathParam("activityId") Long activityId) {
-    int totalHours = storeTimeSheet.getTotalHoursByActivity(activityId);
-    return Response.ok(totalHours).build();
+    try {
+        Integer totalHours = storeTimeSheet.getTotalHoursByActivity(activityId);
+
+        // Ritorna 0 se l'attività esiste ma non ha ore registrate
+        if (totalHours == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("Attività non trovata").build();
+        }
+
+        // Ritorna il totale delle ore (0 o un numero positivo)
+        return Response.ok(totalHours).build();
+    } catch (Exception e) {
+        // Log dell'errore per una migliore tracciabilità
+        e.printStackTrace();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity("Errore nel calcolo delle ore totali: " + e.getMessage()).build();
+    }
 }
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)

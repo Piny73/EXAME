@@ -5,6 +5,7 @@ C:\EXAME\exame\exame\exame\src\main\java\ts\store\BaseStore.java
 C:\EXAME\exame\exame\exame\src\main\java\ts\entity\adapter\LocalDateTimeAdapter.java
 C:\EXAME\exame\exame\exame\src\main\java\ts\services\OptionRequestFilter.java
 C:\EXAME\exame\exame\exame\src\main\java\ts\boundary\TimeSheetResources.java
+C:\EXAME\exame\exame\exame\src\main\java\ts\services\TimeSheetService.java
 C:\EXAME\exame\exame\exame\src\main\java\ts\store\ActivityStore.java
 C:\EXAME\exame\exame\exame\src\main\java\ts\services\JAXRSConfiguration.java
 C:\EXAME\exame\exame\exame\src\main\java\ts\boundary\mapping\UserDTO.java

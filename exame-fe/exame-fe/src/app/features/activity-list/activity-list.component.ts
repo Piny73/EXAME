@@ -4,7 +4,7 @@ import { Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, Simp
 import { Activity, ActivityDTO } from '../../core/models/activity.model';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ActivityService } from '../../core/services/activity.service';
-import { Observable, of } from 'rxjs';
+import { forkJoin, Observable, of } from 'rxjs';
 import { map, catchError, startWith } from 'rxjs';
 
 interface ActivityData {
@@ -28,7 +28,7 @@ export class ActivityListComponent implements OnInit, OnChanges {
   title = 'Activity';
   activityData$!: Observable<ActivityData>;
   selectedActivity: Activity | null = null;
-
+  totalHoursMap: { [activityId: number]: number } = {};
   constructor(private activityService: ActivityService) {}
 
   ngOnInit() {
@@ -61,6 +61,32 @@ export class ActivityListComponent implements OnInit, OnChanges {
       }),
       startWith({ loading: true, activityList: null, error: null })
     );
+
+    // Chiamata al metodo per caricare le ore totali una volta caricata la lista delle attività
+    this.activityData$.subscribe(() => {
+      this.loadTotalHours();
+    });
+  }
+
+  // Metodo per caricare il totale delle ore per ogni attività
+  loadTotalHours(): void {
+    if (this.activityData$) {
+      this.activityData$.pipe(
+        map(data => data.activityList || [])
+      ).subscribe(activities => {
+        activities.forEach(activity => {
+          this.activityService.getTotalHoursByActivity(activity.id).subscribe({
+            next: (hours) => {
+              console.log(`Ore totali per l'attività con ID ${activity.id}:`, hours); // Log di controllo
+              this.totalHoursMap[activity.id] = hours; // Memorizza le ore totali nella mappa
+            },
+            error: (error) => {
+              console.error(`Errore nel recupero delle ore per l'attività con ID ${activity.id}:`, error);
+            }
+          });
+        });
+      });
+    }
   }
 
 // Metodo per gestire la selezione di un'attività
