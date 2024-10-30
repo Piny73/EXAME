@@ -81,4 +81,25 @@ export class TimesheetListComponent implements OnInit {
       workDate: null
     };
   }
+
+  reload(load: boolean): void {
+    if (load) {
+      this.loadTimesheets(); // Ricarica la lista
+    }
+  }
+  deleteTimesheet(timesheet: TimeSheetDTO): void {
+    if (confirm(`Sei sicuro di voler eliminare il timesheet di "${timesheet.detail}"?`)) {
+      this.timesheetService.deleteTimesheet(timesheet.id).subscribe({
+        next: () => {
+          console.log('Timesheet eliminata con successo:', timesheet.id);
+          this.reload(true); // Ricarica la lista dopo la cancellazione
+        },
+        error: (error: any) => {
+          console.error('Errore durante l\'eliminazione del timesheet', error);
+        }
+      });
+    }
+  }
+
+
 }

@@ -22,7 +22,7 @@ import ts.entity.adapter.LocalDateTimeAdapter;
 @Table(name = "timesheet")
 @NamedQuery(
     name = "TimeSheet.getTotalHoursByActivity",
-    query = "SELECT SUM(t.hoursWorked) FROM TimeSheet t WHERE t.activity.id = :activityId AND t.canceled = false AND t.enable = true"
+    query = "SELECT SUM(ts.hoursWorked) FROM TimeSheet ts WHERE ts.activity.id = :activityId AND ts.canceled = 0 AND ts.enable = 0"
 )
 
 public class TimeSheet extends BaseEntity {

@@ -53,7 +53,7 @@ public class TimeSheetStore extends BaseStore<TimeSheet> {
      */
  public int getTotalHoursByActivity(Long activityId) {
     TypedQuery<Long> query = getEm().createQuery(
-        "SELECT SUM(t.hoursWorked) FROM TimeSheet t WHERE t.activity.id = :activityId AND t.canceled = false AND t.enable = true",
+        "SELECT SUM(ts.hoursWorked) FROM TimeSheet ts WHERE ts.activity.id = :activityId AND ts.canceled = 0 AND ts.enable = 0",
         Long.class
     );
     query.setParameter("activityId", activityId);
