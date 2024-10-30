@@ -41,7 +41,7 @@ public class TimeSheetStore extends BaseStore<TimeSheet> {
      * @return lista di tutti i timesheet.
      */
     public List<TimeSheet> findAll() {
-        return getEm().createQuery("SELECT e FROM TimeSheet e", TimeSheet.class)
+       return getEm().createQuery("select e from TimeSheet e where e.canceled = false", TimeSheet.class)
                 .getResultList();
     }
     

@@ -49,30 +49,26 @@ public class TimeSheetResources {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Restituisce l'elenco di tutti i TimeSheet")
     @APIResponses({
-        @APIResponse(responseCode = "200", description = "Elenco ritornato con successo"),
-        @APIResponse(responseCode = "204", description = "Nessun contenuto disponibile")
+    @APIResponse(responseCode = "200", description = "Elenco ritornato con successo"),
+    @APIResponse(responseCode = "204", description = "Nessun contenuto disponibile")
     })
-    public Response getAllTimeSheets() {
-        List<TimeSheetDTO> timeSheetList = new ArrayList<>();
+    @PermitAll
+    public List<TimeSheetDTO> allTimeSheet() {
+        List<TimeSheetDTO> tsList = new ArrayList<>();
         
         storeTimeSheet.findAll().forEach(e -> {
-            TimeSheetDTO timeSheetDTO = new TimeSheetDTO();
-            timeSheetDTO.id = e.getId();
-            timeSheetDTO.activityid = e.getActivity().getId();
-            timeSheetDTO.userid = e.getUser().getId();
-            timeSheetDTO.dtstart = e.getDtstart();
-            timeSheetDTO.dtend = e.getDtend();
-            timeSheetDTO.detail = e.getDetail();
-            timeSheetDTO.hoursWorked = e.getHoursWorked();  // Nuovo campo
-            timeSheetDTO.workDate = e.getWorkDate();  // Nuovo campo
-            timeSheetList.add(timeSheetDTO);
+            TimeSheetDTO ts = new TimeSheetDTO();
+            ts.id = e.getId();
+            ts.activityid = e.getActivity().getId();
+            ts.userid = e.getUser().getId();
+            ts.dtstart = e.getDtstart();
+            ts.dtend = e.getDtend();
+            ts.detail = e.getDetail();
+            ts.hoursWorked = e.getHoursWorked();  
+            ts.workDate = e.getWorkDate();  
+            tsList.add(ts);
         });
-
-        if (timeSheetList.isEmpty()) {
-            return Response.status(Response.Status.NO_CONTENT).build();
-        }
-
-        return Response.ok(timeSheetList).build();
+            return tsList;
     }
 
     @GET
@@ -100,8 +96,8 @@ public class TimeSheetResources {
                 timeSheetDTO.dtstart = e.getDtstart();
                 timeSheetDTO.dtend = e.getDtend();
                 timeSheetDTO.detail = e.getDetail();
-                timeSheetDTO.hoursWorked = e.getHoursWorked();  // Nuovo campo
-                timeSheetDTO.workDate = e.getWorkDate();  // Nuovo campo
+                timeSheetDTO.hoursWorked = e.getHoursWorked();  
+                timeSheetDTO.workDate = e.getWorkDate(); 
                 timeSheetList.add(timeSheetDTO);
             });
 

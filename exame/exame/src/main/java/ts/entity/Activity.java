@@ -13,7 +13,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import ts.entity.adapter.UserTypeAdapter;
 import ts.entity.adapter.LocalDateTimeAdapter;
 
 @Entity

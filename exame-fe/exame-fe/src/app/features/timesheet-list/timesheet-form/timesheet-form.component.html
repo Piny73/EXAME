@@ -80,8 +80,33 @@
     </div>
   </form>
 
-  <!-- Dialog di conferma eliminazione -->
-  <ng-container *ngIf="showDeleteDialog">
+  <!-- Dialog di conferma salvataggio -->
+<ng-container *ngIf="showSaveDialog" class="dialog">
+  <div class="dialog-overlay">
+    <div class="dialog-content text-center">
+  <p  class="mb-4">"Sei sicuro di voler salvare?</p>
+  <button class="btn btn-danger me-2" (click)="save()">Conferma Salvataggio</button>
+  <button class="btn btn-secondary" (click)="showSaveDialog = false">Annulla</button>
+</div>
+</div>
+</ng-container>
+</div>
+
+
+<!-- Dialog di conferma eliminazione -->
+<ng-container *ngIf="showDeleteDialog" class="dialog">
+  <div class="dialog-overlay">
+    <div class="dialog-content text-center">
+  <p class="mb-4">Sei sicuro di voler eliminare?</p>
+  <button class="btn btn-danger me-2" (click)="confirmDelete()">Conferma Cancellazione</button>
+  <button class="btn btn-secondary" (click)="cancelDelete()">Annulla</button>
+</div>
+</div>
+</ng-container>
+
+
+  <!-- Dialog di conferma eliminazione
+  <ng-container *ngIf="showDeleteDialog" class="dialog">
     <div class="dialog-overlay">
       <div class="dialog-content text-center">
         <p class="mb-4">Sei sicuro di voler eliminare questo timesheet?</p>
@@ -91,5 +116,5 @@
         </div>
       </div>
     </div>
-  </ng-container>
-</div>
+  </ng-container>-->
+

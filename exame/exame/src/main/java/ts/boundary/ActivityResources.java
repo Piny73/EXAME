@@ -54,7 +54,7 @@ public class ActivityResources {
     
 @GET
 @Produces(MediaType.APPLICATION_JSON)
-@Operation(description = "Restituisce l'elenco di Attività")
+@Operation(description = "Restituisce l'elenco di tutte le Attività")
 @APIResponses({
 @APIResponse(responseCode = "200", description = "Success"),
 @APIResponse(responseCode = "404", description = "Failed")
