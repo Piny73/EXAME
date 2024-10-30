@@ -1,37 +1,31 @@
-h1 {
-    margin: 0 auto;
-    text-align: center;
-}
+/* CSS per l'header */
 
 header {
-    justify-content: space-between; /* Posiziona le icone ai due lati e il testo al centro */
-    align-items: center; /* Allinea verticalmente il contenuto */
-    padding: 20px;
-    background-color: #d5e9fc; /* Colore di sfondo chiaro */
+    display: flex;
+    align-items: center;          /* Centra verticalmente gli elementi all'interno dell'header */
+    justify-content: space-between; /* Spaziatura uniforme tra icone a sinistra e navbar a destra */
+    background-color: #e0f0ff;     /* Colore di sfondo */
+    padding: 10px 20px;            /* Spaziatura interna per il margine laterale */
     border-radius: 5px;
     border: ridge navy;
-    display: flex;   
+    position: relative;            /* Necessario per posizionare app-navbar */
 }
 
-/* Stile per il titolo */
-header h1 {
-    text-shadow: 
-        1px 1px 0 navy, /* Ombra in basso a destra */
-        -1px -1px 0 navy, /* Ombra in alto a sinistra */
-        -1px 1px 0 navy, /* Ombra in basso a sinistra */
-        1px -1px 0 navy; /* Ombra in alto a destra */
-    font-size: 2.5rem; /* Dimensione del testo */
-    font-weight: bold; /* Grassetto per maggiore impatto */
-    color: #1e90ff; /* Colore blu */
-    letter-spacing: 1px; /* Spaziatura tra le lettere per rendere il testo più leggibile */
-    flex: 1; /* Spinge il titolo al centro */
-    text-align: center; /* Allinea il testo al centro */
-}
-
-/* Stile per le icone */
 .header-icon {
-    width: 50px; /* Dimensione icona */
-    height: auto; /* Mantieni le proporzioni */
+    height: 200px;                  /* Altezza dell'icona cronometro */
+    margin-right: 15px;            /* Spazio tra l'icona e la targhetta */
 }
 
-  
+.header-title-image {
+    width: auto;                   /* Larghezza automatica */
+    height: 200px;                  /* Altezza dell'immagine della targhetta */
+    flex-grow: 1;                  /* Permette alla targhetta di espandersi orizzontalmente */
+    max-width: calc(100% - 200px); /* Limita la larghezza massima della targhetta rispetto al margine */
+    margin-right: 30px;            /* Aumenta lo spazio tra targhetta e navbar */
+}
+
+app-navbar {
+    display: flex;                 /* Mantiene gli elementi della navbar in linea */
+    align-items: center;           /* Centra la navbar verticalmente */
+    margin-left: 30px;             /* Aumenta lo spazio tra la navbar e la targhetta */
+}

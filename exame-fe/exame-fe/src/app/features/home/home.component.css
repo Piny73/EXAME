@@ -46,11 +46,14 @@
     align-items: center;
     text-align: center;
 }
-  .menu-opcoes {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+.menu-opcoes {
+  display: flex;
+  flex-direction: row; /* Disposizione orizzontale dei bottoni */
+  align-items: center;
+  justify-content: center; /* Centra i bottoni orizzontalmente */
+  gap: 20px; /* Spazio di 20px tra i bottoni */
+  margin-top: 2rem; /* Margine superiore per distanziare dal contenuto sopra */
+}
   
   .menu-item {
     font-size: 1.5rem;
