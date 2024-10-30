@@ -1,3 +1,4 @@
+//activity.service.ts
 import { Injectable } from '@angular/core';
 import { ApiService } from '../api.service';
 import { Activity } from '../models/activity.model';
@@ -16,10 +17,13 @@ export class ActivityService {
 
   constructor(private apiService: ApiService) {}
 
-    // Metodo per ottenere il totale delle ore per una singola attività
-    getTotalHoursByActivity(activityId: number): Observable<number> {
-      return this.apiService.get<number>(`${this.endpoint}/activity/${activityId}/totalHours`);
-    }
+  getTotalHoursByActivity(activityId: number): Observable<number> {
+    const url = `timesheet/activity/${activityId}/totalHours`;
+    return this.apiService.get<number>(url).pipe(
+      catchError(this.handleError)
+    );
+ }
+  
 
   // Metodo per salvare una nuova attività
   save(activity: Activity): Observable<Activity> {
