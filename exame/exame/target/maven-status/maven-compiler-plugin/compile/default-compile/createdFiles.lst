@@ -4,11 +4,13 @@ ts\boundary\mapping\ActivityDTO.class
 ts\boundary\mapping\Credential.class
 ts\entity\BaseEntity.class
 ts\entity\TimeSheet.class
+ts\boundary\ActivityTimesheetResource.class
 ts\store\ActivityStore.class
 ts\entity\Activity.class
 ts\store\TimeSheetStore.class
 ts\boundary\UsersResources.class
 airhacks\service\ping\boundary\PingResource.class
+ts\services\ActivityTimesheetService.class
 ts\store\BaseStore.class
 ts\store\UserStore.class
 ts\boundary\mapping\TimeSheetDTO.class
