@@ -28,7 +28,7 @@
 
     /* Trasforma il box in un ovale */
     border-radius: 50%; /* Arrotonda il box fino a renderlo ovale */
-    width: 200px; /* Larghezza personalizzata */
+    width: 250px; /* Larghezza personalizzata */
     height: 100px; /* Altezza personalizzata */
 
     /* Aggiungi un effetto di bagliore alla cornice */
