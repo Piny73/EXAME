@@ -8,10 +8,16 @@ import { FeaturesModule } from './features/features.module'; // Importa Features
 import { LayoutModule } from './layout/layout.module';
 import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
+import { UserFormComponent } from './user-list/user-form/user-form.component';
+import { UserRowComponent } from './user-list/user-row/user-row.component';
+import { UserListComponent } from './user-list/user-list.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    UserFormComponent,
+    UserRowComponent,
+    UserListComponent
   ],
   imports: [
     BrowserModule,
