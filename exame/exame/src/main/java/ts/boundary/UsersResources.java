@@ -123,22 +123,21 @@ public class UsersResources {
         return us;
     }
     
-    @DELETE
-    @Path("{id}")
-    @Operation(description = "Elimina una risorsa Utente tramite l'ID")
-    @APIResponses({
-        @APIResponse(responseCode = "200", description = "Utente eliminato con successo"),
-        @APIResponse(responseCode = "404", description = "Utente non trovato")
-    })
-    @Produces(MediaType.APPLICATION_JSON)
-    @PermitAll
-    public Response delete(@PathParam("id") Long id) {
-        // Trova l'utente da eliminare
-        User found = storeuser.find(id).orElseThrow(() -> new NotFoundException("user non trovato. id=" + id));
-        // Rimuovi l'utente
-        storeuser.remove(found);
-        return Response.status(Response.Status.OK).build();
-    }
+@DELETE
+@Path("{id}")
+@Operation(description = "Cancel User tramite l'ID")
+@APIResponses({
+    @APIResponse(responseCode = "200", description = "Utente cancellato con successo"),
+    @APIResponse(responseCode = "404", description = "Utente non trovato")
+})
+@Produces(MediaType.APPLICATION_JSON)
+public Response deleteUser(@PathParam("id") Long id) {
+    User found = storeuser.find(id).orElseThrow(() -> new NotFoundException("Utente non trovato. id=" + id));
+    found.setCanceled(true);
+    User updated = storeuser.update(found);
+    return Response.ok(updated).build();
+}
+
     
 @PUT
 @Path("/{id}")

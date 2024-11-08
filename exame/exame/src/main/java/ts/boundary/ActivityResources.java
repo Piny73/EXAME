@@ -107,22 +107,21 @@ public List<ActivityDTO> allActivity() {
     }
  
       
-    @DELETE
-    @Path("{id}")
-    @Operation(description = "Cancel Activity tramite l'ID")
-    @APIResponses({
-        @APIResponse(responseCode = "200", description = "Utente eliminato con successo"),
-        @APIResponse(responseCode = "404", description = "Utente non trovato")
+@DELETE
+@Path("{id}")
+@Operation(description = "Cancel User tramite l'ID")
+@APIResponses({
+    @APIResponse(responseCode = "200", description = "Utente cancellato con successo"),
+    @APIResponse(responseCode = "404", description = "Utente non trovato")
+})
+@Produces(MediaType.APPLICATION_JSON)
+public Response deleteUser(@PathParam("id") Long id) {
+    User found = storeuser.find(id).orElseThrow(() -> new NotFoundException("Utente non trovato. id=" + id));
+    found.setCanceled(true);
+    storeuser.update(found);
+    return Response.status(Response.Status.OK).build();
+}
 
-    })
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response deleteActivity(@PathParam("id") Long id) {
-        Activity found = storeactivity.find(id).orElseThrow(() -> new NotFoundException("user non trovato. id=" + id));
-        found.setCanceled(true);
-        storeactivity.remove(found);
-        return Response.status(Response.Status.OK)
-                .build();
-    }
     
 @PUT
 @Path("/{id}")
