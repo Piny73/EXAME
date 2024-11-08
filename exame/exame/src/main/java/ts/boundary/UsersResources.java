@@ -129,7 +129,7 @@ public class UsersResources {
         @APIResponse(responseCode = "404", description = "Utente non trovato")
     })
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed("Admin")
+    @PermitAll
     public Response delete(@PathParam("id") Long id) {
         // Trova l'utente da eliminare
         User found = storeuser.find(id).orElseThrow(() -> new NotFoundException("user non trovato. id=" + id));
@@ -146,11 +146,16 @@ public class UsersResources {
         @APIResponse(responseCode = "200", description = "Utente aggiornato con successo"),
         @APIResponse(responseCode = "404", description = "Aggiornamento fallito")
     })
-    @RolesAllowed("Admin")
-    public User update(@Valid User entity) {
-        // Trova l'utente da aggiornare
-        User found = storeuser.find(entity.getId()).orElseThrow(() -> new NotFoundException("user non trovato. id=" + entity.getId()));
-        // Aggiorna l'utente
-        return storeuser.update(entity);
+    @PermitAll
+    public Response update(@Valid User entity) {
+    try {
+        User found = storeuser.find(entity.getId()).orElseThrow(() -> new NotFoundException("Utente non trovato. id=" + entity.getId()));
+        User updated = storeuser.update(entity);
+        return Response.ok(updated).build();
+    } catch (NotFoundException e) {
+        return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
+    } catch (Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Errore durante l'aggiornamento dell'utente").build();
+    }
     }
 }
