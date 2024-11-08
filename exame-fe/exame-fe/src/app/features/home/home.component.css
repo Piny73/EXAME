@@ -6,16 +6,16 @@
   padding: 20px; /* Aggiungi del padding per creare spazio intorno al contenuto, se necessario */
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
-    height: 100vh;
+    height: calc(100vh - 222px);
     background-color: #f0f0f0;
   }
   
   .alunno-nome {
     font-family: Georgia, 'Times New Roman', Times, serif;
     font-size: 2rem;
-    margin-bottom: 2rem;
+    margin-bottom: 4rem;
     color: #FFA500; /* Colore arancio-giallo per il testo */
     text-shadow: 
         1px 1px 0 navy, /* Ombra in basso a destra */
@@ -52,7 +52,7 @@
   align-items: center;
   justify-content: center; /* Centra i bottoni orizzontalmente */
   gap: 20px; /* Spazio di 20px tra i bottoni */
-  margin-top: 2rem; /* Margine superiore per distanziare dal contenuto sopra */
+  margin-top: 10rem; /* Margine superiore per distanziare dal contenuto sopra */
 }
   
   .menu-item {

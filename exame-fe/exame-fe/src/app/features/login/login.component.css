@@ -1,23 +1,55 @@
 .login-container {
-    width: 300px;
+    width: 400px;
     margin: 0 auto;
     padding: 20px;
-    border: 2px ridge navy;
-    border-radius: 4px;
+    border: 3px ridge navy;
+    border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     background-color: #d5e9fc;
   }
   .content-background {
-    background-image: url('/assets/images/loginPage.png'); /* Percorso dell'immagine */
+    background-image: url('/assets/images/TimesheetSfondoHome.png'); /* Percorso dell'immagine */
     background-size: cover; /* Adatta l'immagine per coprire tutto lo spazio */
     background-position: center; /* Centra l'immagine */
     background-repeat: no-repeat; /* Evita la ripetizione dell'immagine */
-    min-height: calc(100vh - 200px); /* Altezza minima: 100vh meno l'altezza di header e footer */
+    min-height: calc(100vh - 240px); /* Altezza minima: 100vh meno l'altezza di header e footer */
     padding: 20px; /* Padding opzionale per distanziare i contenuti */
     display: flex; /* Usa flexbox per centrare il contenuto */
     justify-content: center; /* Centra orizzontalmente il contenitore del login */
     align-items: center; /* Centra verticalmente il contenitore del login */
+    height: calc(100vh - 240px);
   }
+
+  .username-label {
+    font-weight: bold;
+    color: navy;
+}
+
+  .password-label {
+    font-weight: bold;
+    color: navy;
+}
+
+  .btn {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+  .btn-primary {
+    background-color: #FFA500; /* Colore primario */
+    border: 3px ridge navy;
+    font-weight: bold;
+    color: navy;
+}
+
+  .btn-success {
+    background-color: navy; /* Colore successo */
+    border-color: 3px ridge #FFA500;
+    font-weight: bold;
+    color: #FFA500;
+}
+
   
   h2 {
     text-align: center;
@@ -31,6 +63,7 @@
     width: 100%;
     padding: 8px;
     box-sizing: border-box;
+   
   }
   
   .btn {

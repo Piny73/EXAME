@@ -27,6 +27,8 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import static org.hibernate.annotations.common.util.impl.LoggerFactory.logger;
+import static org.hibernate.internal.HEMLogging.logger;
 import ts.entity.User;
 import ts.boundary.mapping.Credential;
 import ts.boundary.mapping.UserDTO;
@@ -138,24 +140,47 @@ public class UsersResources {
         return Response.status(Response.Status.OK).build();
     }
     
-    @PUT
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Aggiorna i dati dell'utente")
-    @APIResponses({
-        @APIResponse(responseCode = "200", description = "Utente aggiornato con successo"),
-        @APIResponse(responseCode = "404", description = "Aggiornamento fallito")
-    })
-    @PermitAll
-    public Response update(@Valid User entity) {
+@PUT
+@Path("/{id}")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
+@Operation(description = "Aggiornamento Utente")
+@APIResponses({
+    @APIResponse(responseCode = "200", description = "Utente aggiornato con successo"),
+    @APIResponse(responseCode = "404", description = "Utente non trovato"),
+    @APIResponse(responseCode = "500", description = "Errore interno del server")
+})
+public Response updateUser(@Valid UserDTO entity) {
     try {
-        User found = storeuser.find(entity.getId()).orElseThrow(() -> new NotFoundException("Utente non trovato. id=" + entity.getId()));
-        User updated = storeuser.update(entity);
-        return Response.ok(updated).build();
+        // Trova l'utente esistente nel database
+        User found = storeuser.find(entity.id)
+            .orElseThrow(() -> new NotFoundException("User not found. id=" + entity.id));
+        
+        // Aggiorna i campi dell'utente
+        found.setName(entity.name);
+        found.setEmail(entity.email);
+        found.setPwd(entity.pwd);
+        // Aggiungi altri campi se necessario
+        
+        // Salva l'entità aggiornata nel database
+        User updated = storeuser.update(found);
+        
+        // Restituisci la risposta con successo
+        return Response.status(Response.Status.OK)
+            .entity(updated)
+            .build();
     } catch (NotFoundException e) {
-        return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
+        // Gestisce il caso in cui l'utente non viene trovato
+        return Response.status(Response.Status.NOT_FOUND)
+            .entity(e.getMessage())
+            .build();
     } catch (Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Errore durante l'aggiornamento dell'utente").build();
+        // Gestisce eventuali altri errori
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+            .entity("Errore durante l'aggiornamento dell'utente: " + e.getMessage())
+            .build();
     }
-    }
+}
+
+
 }

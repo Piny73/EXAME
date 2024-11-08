@@ -2,7 +2,7 @@
   <div class="login-container">
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <div class="form-group">
-        <label for="usr">User</label>
+        <label for="usr" class="username-label">User</label>
         <input
           id="usr"
           formControlName="usr"
@@ -15,7 +15,7 @@
       </div>
 
       <div class="form-group">
-        <label for="pwd">Password</label>
+        <label for="pwd" class="password-label">Password</label>
         <input
           type="password"
           id="pwd"

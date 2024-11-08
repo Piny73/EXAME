@@ -4,6 +4,7 @@
  */
 package ts.store;
 
+
 import java.util.List;
 import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
@@ -65,5 +66,4 @@ public class UserStore extends BaseStore<User> {
         }
 
     }
-
 }

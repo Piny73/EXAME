@@ -1,7 +1,7 @@
 <nav>
   <div *ngIf="user$ | async as user; else noUser">
-    <img src="/assets/images/iconaUser.png" alt="User Icon" class="user-icon"> <!-- Aggiungi l'icona prima del nome -->
-    <span class="user-name">{{ user.name }}</span> <!-- Mostra il nome dell'utente -->
+    <img src="/assets/images/iconaUser.png" alt="User Icon" class="user-icon"> 
+    <span class="user-name">{{ user.name }}</span> 
     <button (click)="logout()" class="custom-logout-button">
       <img src="/assets/images/iconaLogout.png" alt="Logout Icon" class="custom-logout-icon">
     </button>

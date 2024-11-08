@@ -1,10 +1,58 @@
+/* CSS per il footer */
+
 footer {
-    justify-content: space-between; /* Posiziona le icone ai due lati e il testo al centro */
-    align-items: center; /* Allinea verticalmente il contenuto */
+    justify-content: space-between;
+    align-items: center;
     padding: 20px;
-    background-color: #d5e9fc; /* Colore di sfondo chiaro */
+    background-color: #d5e9fc;
     border-radius: 5px;
     border: ridge navy;
-    display: flex; 
+    display: flex;
     color: navy;
+    background-image: url('/assets/images/cronometroTS.png'), url('/assets/images/cartellettaTS.png');
+    background-repeat: repeat-x;
+    background-size: 50px auto, 35px auto;
+    background-position: 0 50%, 0 0;
+}
+
+
+.footer-icon {
+    height: 50px;
+    margin-right: 15px;
+    margin-left: 15px;
+}
+
+.footer-icon2 {
+    height: 35px;
+    margin-right: 15px;
+    margin-left: 15px;
+}
+
+/* Media queries */
+
+@media screen and (max-width: 768px) {
+    /* Stili per tablet */
+    footer {
+        padding: 15px;
+        font-size: 0.9em;
+    }
+    
+    footer > * {
+        margin-right: 10px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    /* Stili per smartphone */
+    footer {
+        padding: 10px;
+        font-size: 0.8em;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    footer > * {
+        margin-right: 0;
+        margin-bottom: 5px;
+    }
 }
