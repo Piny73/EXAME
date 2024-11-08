@@ -19,12 +19,9 @@ public class UserDTO {
     public String email;
     
     public String pwd;
-    
-    @NotBlank
-    public String roleUser; // Aggiunto il campo roleUser per rappresentare il ruolo dell'utente
 
     @Override
     public String toString() {
-        return "UserDTO{" + "id=" + id + ", name=" + name + ", email=" + email + ", pwd=" + pwd + ", roleUser=" + roleUser + '}';
+        return "UserDTO{" + "id=" + id + ", name=" + name + ", email=" + email + ", pwd=" + pwd + '}';
     }
-}
+    }
