@@ -31,8 +31,5 @@ public class UserTypeAdapter implements JsonbAdapter<User, JsonObject>  {
             return null;
         }
         return store.find(json.getJsonNumber("id").longValue()).orElseThrow(() -> new NotFoundException("UserTypeAdapter.adaptFromJson not found"));
-    }
-    
-    
-    
+    }   
 }

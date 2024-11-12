@@ -4,6 +4,7 @@
  */
 package ts.entity;
 
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -16,7 +17,7 @@ public class User extends BaseEntity {
     
     @NotBlank
     @Column(nullable = false)
-    private String name;
+    private String namesurname;
      
     @NotBlank
     @Email
@@ -26,13 +27,12 @@ public class User extends BaseEntity {
     @Column(nullable = false)    
     private String pwd;
     
-    // Getters e Setters
-    public String getName() {
-        return name;
+    public String getNamesurname() {
+        return namesurname;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setNamesurname(String namesurname) {
+        this.namesurname = namesurname;
     }
 
     public String getEmail() {

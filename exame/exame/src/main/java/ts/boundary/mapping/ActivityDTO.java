@@ -26,7 +26,7 @@ public class ActivityDTO {
 
     public boolean enable;
 
-    // Aggiunto il campo ownerName per restituire il nome del proprietario
+    // proprietario
     public String ownerName;
 
     @Override
