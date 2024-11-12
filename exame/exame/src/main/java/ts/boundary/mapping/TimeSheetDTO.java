@@ -29,10 +29,10 @@ public class TimeSheetDTO {
     public String detail;  
 
     @NotNull
-    public Integer hoursWorked;  // Nuovo campo per il numero di ore lavorate
+    public Integer hoursWorked;
 
     @NotNull
-    public LocalDate workDate;  // Nuovo campo per la data di lavoro
+    public LocalDate workDate;
 
     @Override
     public String toString() {

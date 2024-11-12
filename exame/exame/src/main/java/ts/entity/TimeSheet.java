@@ -28,7 +28,7 @@ import ts.entity.adapter.LocalDateTimeAdapter;
 public class TimeSheet extends BaseEntity {
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "activity_Id", nullable = false) // Nome esatto della colonna nel DB
+    @JoinColumn(name = "activity_Id", nullable = false) 
     private Activity activity;
 
     @ManyToOne(optional = false)
@@ -53,14 +53,12 @@ public class TimeSheet extends BaseEntity {
     private boolean enable;
 
     @NotNull
-    @Column(name = "hours_Worked", nullable = false) // Nome esatto della colonna nel DB
+    @Column(name = "hours_Worked", nullable = false)
     private Integer hoursWorked;
 
     @NotNull
     @Column(name = "work_date", nullable = false)
     private LocalDate workDate;
-
-    // Getters e Setters...
 
     public Activity getActivity() {
         return activity;

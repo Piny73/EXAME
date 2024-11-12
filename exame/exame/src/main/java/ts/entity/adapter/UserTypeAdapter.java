@@ -11,10 +11,6 @@ import javax.ws.rs.NotFoundException;
 import ts.store.UserStore;
 import ts.entity.User;
 
-/**
- *
- * @author AndreLima
- */
 public class UserTypeAdapter implements JsonbAdapter<User, JsonObject>  {
     
     @Inject

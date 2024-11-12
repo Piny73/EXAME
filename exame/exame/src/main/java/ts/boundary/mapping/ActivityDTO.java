@@ -26,7 +26,6 @@ public class ActivityDTO {
 
     public boolean enable;
 
-    // proprietario
     public String ownerName;
 
     @Override

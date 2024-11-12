@@ -11,10 +11,7 @@ import javax.ws.rs.NotFoundException;
 import ts.entity.Activity;
 import ts.store.ActivityStore;
 
-/**
- *
- * @author AndreLima
- */
+
 public class ActivityTypeAdapter implements JsonbAdapter<Activity, JsonObject>  {
     
     @Inject

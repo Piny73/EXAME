@@ -15,9 +15,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.container.ResourceContext;
-import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.NotFoundException;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -39,15 +36,9 @@ public class TimeSheetResources {
     @Inject
     private TimeSheetStore storeTimeSheet;
 
-    @Context
-    ResourceContext resourceContext;
-
-    @Context
-    UriInfo uriInfo;
-
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Restituisce l'elenco di tutti i TimeSheet")
+    @Operation(description = "Elenco di tutte le TimeSheet")
     @APIResponses({
     @APIResponse(responseCode = "200", description = "Elenco ritornato con successo"),
     @APIResponse(responseCode = "204", description = "Nessun contenuto disponibile")
@@ -74,7 +65,7 @@ public class TimeSheetResources {
     @GET
     @Path("{userId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Restituisce l'elenco dei TimeSheet di un Utente specifico")
+    @Operation(description = "Elenco TimeSheet di un Utente specifico")
     @APIResponses({
         @APIResponse(responseCode = "200", description = "Elenco ritornato con successo"),
         @APIResponse(responseCode = "404", description = "Utente non trovato"),
@@ -124,16 +115,12 @@ public Response getTotalHoursByActivity(@PathParam("activityId") Long activityId
     try {
         Integer totalHours = storeTimeSheet.getTotalHoursByActivity(activityId);
 
-        // Ritorna 0 se l'attività esiste ma non ha ore registrate
         if (totalHours == null) {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity("Attività non trovata").build();
         }
-
-        // Ritorna il totale delle ore (0 o un numero positivo)
         return Response.ok(totalHours).build();
     } catch (Exception e) {
-        // Log dell'errore per una migliore tracciabilità
         e.printStackTrace();
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .entity("Errore nel calcolo delle ore totali: " + e.getMessage()).build();
@@ -158,8 +145,8 @@ public Response getTotalHoursByActivity(@PathParam("activityId") Long activityId
         timeSheet.setDetail(entity.detail);
         timeSheet.setDtstart(entity.dtstart);
         timeSheet.setDtend(entity.dtend);
-        timeSheet.setHoursWorked(entity.hoursWorked);  // Nuovo campo
-        timeSheet.setWorkDate(entity.workDate);  // Nuovo campo
+        timeSheet.setHoursWorked(entity.hoursWorked);
+        timeSheet.setWorkDate(entity.workDate); 
 
         storeTimeSheet.save(timeSheet);
 
@@ -185,8 +172,8 @@ public Response getTotalHoursByActivity(@PathParam("activityId") Long activityId
         found.setDetail(entity.detail);
         found.setDtstart(entity.dtstart);
         found.setDtend(entity.dtend);
-        found.setHoursWorked(entity.hoursWorked);  // Nuovo campo
-        found.setWorkDate(entity.workDate);  // Nuovo campo
+        found.setHoursWorked(entity.hoursWorked); 
+        found.setWorkDate(entity.workDate);  
 
         storeTimeSheet.update(found);
         return Response.status(Response.Status.OK).entity(entity).build();
@@ -203,7 +190,6 @@ public Response getTotalHoursByActivity(@PathParam("activityId") Long activityId
         TimeSheet found = storeTimeSheet.find(id)
             .orElseThrow(() -> new NotFoundException("TimeSheet non trovato. ID=" + id));
 
-        // Imposta il campo 'canceled' a true
         found.setCanceled(true);
         storeTimeSheet.update(found);
 

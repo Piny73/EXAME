@@ -7,11 +7,8 @@ package ts.store;
 import java.util.List;
 import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
-import javax.persistence.NoResultException;
 import javax.transaction.Transactional;
-import ts.boundary.mapping.Credential;
 import ts.entity.Activity;
-import ts.entity.User;
 
 @RequestScoped
 @Transactional(Transactional.TxType.REQUIRED)

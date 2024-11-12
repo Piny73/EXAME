@@ -25,7 +25,7 @@ import ts.boundary.mapping.UserDTO;
 import ts.store.UserStore;
 
 @Path("users")
-@Tag(name = "Gestione Users", description = "Permette di gestire gli utenti di bkmapp")
+@Tag(name = "Gestione Users", description = "Permette di gestire gli utenti di Timesheet")
 @PermitAll
 public class UsersResources {
     
@@ -34,7 +34,7 @@ public class UsersResources {
            
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Restituisce l'elenco di tutti gli utenti")
+    @Operation(description = "Elenco di tutti gli utenti")
     @APIResponses({
         @APIResponse(responseCode = "200", description = "Elenco ritornato con successo"),
         @APIResponse(responseCode = "404", description = "Elenco non trovato")
@@ -56,7 +56,7 @@ public class UsersResources {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Permette la registrazione di un nuovo utente")
+    @Operation(description = "Registrazione di un nuovo utente")
     @APIResponses({
         @APIResponse(responseCode = "201", description = "Nuovo utente creato con successo"),
         @APIResponse(responseCode = "404", description = "Creazione di utente fallito")
@@ -78,7 +78,7 @@ public class UsersResources {
 
 @DELETE
 @Path("{id}")
-@Operation(description = "Cancel User tramite l'ID")
+@Operation(description = "Cancellazione Utente tramite l'ID")
 @APIResponses({
     @APIResponse(responseCode = "200", description = "Utente cancellato con successo"),
     @APIResponse(responseCode = "404", description = "Utente non trovato")
@@ -105,7 +105,7 @@ public Response deleteUser(@PathParam("id") Long id) {
 public Response updateUser(@Valid UserDTO entity) {
     try {
         User found = storeuser.find(entity.id)
-            .orElseThrow(() -> new NotFoundException("User not found. id=" + entity.id));
+            .orElseThrow(() -> new NotFoundException("Utente non trovato. id=" + entity.id));
         found.setNamesurname(entity.name);
         found.setEmail(entity.email);
         found.setPwd(entity.pwd);

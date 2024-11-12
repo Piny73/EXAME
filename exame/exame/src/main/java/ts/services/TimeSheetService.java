@@ -1,6 +1,5 @@
 package ts.services;
 
-import ts.entity.TimeSheet;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -12,7 +11,6 @@ public class TimeSheetService {
     @PersistenceContext
     private EntityManager entityManager;
     
-    // Metodo getter per l'EntityManager
     protected EntityManager getEm() {
         return entityManager;
     }
