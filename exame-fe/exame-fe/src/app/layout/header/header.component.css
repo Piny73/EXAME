@@ -3,7 +3,7 @@
 header {
     display: flex;
     align-items: center;
-    justify-content: flex-end; /* Cambiato da space-between a flex-end */
+    justify-content: flex-end;
     background-color: #e0f0ff;
     padding: 10px 20px;
     border-radius: 5px;
@@ -12,27 +12,21 @@ header {
 }
 
 .header-icon {
-    height: 150px;
-    margin-right: 15px;
-    margin-left: 15px;
-}
-
-.header-icon2 {
-    height: 80px;
+    height: 120px;
     margin-right: 15px;
     margin-left: 15px;
 }
 
 .header-icon > img {
-    height: 200px;
+    height: 100px;
     width: auto;
 }
 
 .header-title-image {
     width: auto;
-    height: 85px;
+    height: 100px;
     flex-grow: 1;
-    max-width: calc(100% - 200px);
+    max-width: calc(80% - 100px);
     margin-right: auto; /* Aggiunto per spostare l'icona del titolo a sinistra */
 }
 

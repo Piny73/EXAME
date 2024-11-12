@@ -39,4 +39,3 @@ import { UserListComponent } from './features/user-list/user-list.component';
   bootstrap: [AppComponent]
 })
 export class AppModule { }
-
