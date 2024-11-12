@@ -31,7 +31,7 @@
         <label for="userId" class="form-label">Proprietario</label>
         <select id="userId" formControlName="userId" class="form-control">
           <option value="" disabled selected>Seleziona un utente</option>
-          <option *ngFor="let user of userList" [value]="user.id">{{ user.name }}</option>
+          <option *ngFor="let user of userList" [value]="user.id">{{ user.namesurname }}</option>
         </select>
       </div>
     </div>

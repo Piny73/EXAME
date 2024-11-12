@@ -24,7 +24,7 @@ export class AuthService {
 
     return this.apiService.post<User>(this.endpoint, login, headers).pipe(
       map(response => {
-        if (response && response.id && response.name) {
+        if (response && response.id && response.namesurname) {
           this.saveUserInLocalStorage(response); // Salva l'utente nel localStorage
           this.userSubject.next(response); // Aggiorna lo stato dell'utente
         } else {
@@ -47,7 +47,7 @@ export class AuthService {
       if (localUser) {
         try {
           const parsedUser = JSON.parse(localUser);
-          if (parsedUser && parsedUser.id && parsedUser.name && parsedUser.email) {
+          if (parsedUser && parsedUser.id && parsedUser.namesurname && parsedUser.email) {
             return new User(parsedUser);
           }
         } catch (e) {
@@ -75,7 +75,7 @@ export class AuthService {
 
   // Metodo per ottenere il nome dell'utente corrente
   getUserName(): string | null {
-    return this.userSubject.value?.name || null;
+    return this.userSubject.value?.namesurname || null;
   }
 }
 

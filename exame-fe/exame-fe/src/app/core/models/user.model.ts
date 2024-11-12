@@ -1,7 +1,7 @@
 // user.model.ts
 export class User {
     id! : number
-    name!: string;
+    namesurname!: string;
     email!: string;
     pwd!: string;
     

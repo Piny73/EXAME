@@ -2,7 +2,7 @@
   <select class="form-control" id="user" formControlName="ownerid" (change)="onSelected($event)">
     <option [value]="-1">-- Seleziona un User --</option>
     <option *ngFor="let us of userList" [value]="us.id">
-      {{ us.name }}
+      {{ us.namesurname }}
     </option>
   </select>
 </div>

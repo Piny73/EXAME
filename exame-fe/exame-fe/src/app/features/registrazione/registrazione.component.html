@@ -1,15 +1,15 @@
 <div class="login-container">
   <form [formGroup]="registrazioneForm" (ngSubmit)="onSubmit()">
     <div class="form-group">
-      <label for="name">Nome e Cognome</label>
+      <label for="namesurname">Nome e Cognome</label>
       <input
-        id="name"
-        formControlName="name"
-        placeholder="Name"
+        id="namesurname"
+        formControlName="namesurname"
+        placeholder="Nome e Cognome"
         class="form-control"
       />
-      <div *ngIf="registrazioneForm.get('name')?.invalid && registrazioneForm.get('name')?.touched" class="error-message">
-        Username è richiesta
+      <div *ngIf="registrazioneForm.get('namesurname')?.invalid && registrazioneForm.get('namesurname')?.touched" class="error-message">
+        Nome e Cognome è richiesto
       </div>
     </div>
 
@@ -47,3 +47,4 @@
       {{ errorMessage }}
   </div>
 </div>
+

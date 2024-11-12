@@ -1,39 +1,93 @@
 .login-container {
-    width: 300px;
-    margin: 0 auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    background-color: #f9f9f9;
-  }
-  
-  h2 {
-    text-align: center;
-  }
-  
-  .form-group {
-    margin-bottom: 15px;
-  }
-  
-  .form-control {
-    width: 100%;
-    padding: 8px;
-    box-sizing: border-box;
-  }
-  
-  .btn {
-    width: 100%;
-  }
-  
-  .error-message {
-    color: red;
-    font-size: 12px;
-    margin-top: 5px;
-  }
-  
-  .alert {
-    margin-top: 15px;
-    text-align: center;
-  }
+  width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 3px ridge navy;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #d5e9fc;
+}
+.content-background {
+  background-image: url('/assets/images/TimesheetSfondoHome.png'); /* Percorso dell'immagine */
+  background-size: cover; /* Adatta l'immagine per coprire tutto lo spazio */
+  background-position: center; /* Centra l'immagine */
+  background-repeat: no-repeat; /* Evita la ripetizione dell'immagine */
+  min-height: calc(100vh - 240px); /* Altezza minima: 100vh meno l'altezza di header e footer */
+  padding: 20px; /* Padding opzionale per distanziare i contenuti */
+  display: flex; /* Usa flexbox per centrare il contenuto */
+  justify-content: center; /* Centra orizzontalmente il contenitore del login */
+  align-items: center; /* Centra verticalmente il contenitore del login */
+  height: calc(100vh - 240px);
+}
+
+.username-label {
+  font-weight: bold;
+  color: navy;
+}
+
+.password-label {
+  font-weight: bold;
+  color: navy;
+}
+
+.btn {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.btn-primary {
+  background-color: #FFA500; /* Colore primario */
+  border: 3px ridge navy;
+  font-weight: bold;
+  color: navy;
+}
+
+.btn-success {
+  background-color: navy; /* Colore successo */
+  border-color: 3px ridge #FFA500;
+  font-weight: bold;
+  color: #FFA500;
+}
+
+
+h2 {
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+ 
+}
+
+.btn {
+  width: 100%;
+}
+
+.error-message {
+  color: red;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.alert {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.image-container {
+  text-align: center;
+}
+
+.img-fluid {
+  max-width: 100%;
+  height: auto;
+}
+
   

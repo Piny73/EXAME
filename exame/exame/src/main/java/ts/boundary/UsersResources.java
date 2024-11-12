@@ -8,6 +8,7 @@ import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -20,6 +21,7 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import ts.boundary.mapping.Credential;
 import ts.entity.User;
 import ts.boundary.mapping.UserDTO;
 import ts.store.UserStore;
@@ -74,6 +76,30 @@ public class UsersResources {
         return Response.status(Response.Status.CREATED)
                 .entity(saved)
                 .build();
+    }
+    @POST
+    @Path("login")
+    @Operation(description = "Allows logging in and returns a valid token")
+    @APIResponses({
+        @APIResponse(responseCode = "200", description = "Login successful"),
+        @APIResponse(responseCode = "404", description = "Login failed")
+    })
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @PermitAll
+    public UserDTO login (@Valid Credential credential){
+        User u = storeuser.login(credential)
+                .orElseThrow(() -> new NotAuthorizedException("Unauthorized user",  
+                                                                       Response.status(Response.Status.UNAUTHORIZED).build()));
+       
+        UserDTO us = new UserDTO();
+        us.id = u.getId();
+        us.name = u.getNamesurname();
+        us.email = u.getEmail();
+        us.pwd = "";
+       
+       
+        return us;
     }
 
 @DELETE

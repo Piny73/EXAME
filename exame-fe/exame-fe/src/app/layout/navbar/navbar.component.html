@@ -1,7 +1,7 @@
 <nav>
   <div *ngIf="user$ | async as user; else noUser">
     <img src="/assets/images/iconaUser.png" alt="User Icon" class="user-icon"> 
-    <span class="user-name">{{ user.name }}</span> 
+    <span class="user-name">{{ user.namesurname }}</span> 
     <button (click)="logout()" class="custom-logout-button">
       <img src="/assets/images/iconaLogout.png" alt="Logout Icon" class="custom-logout-icon">
     </button>

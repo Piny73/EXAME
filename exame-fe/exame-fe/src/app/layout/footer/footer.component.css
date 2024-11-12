@@ -9,17 +9,21 @@ footer {
     border: ridge navy;
     display: flex;
     color: navy;
-    background-image: url('/assets/images/clessidraTS.png');
-    background-repeat: repeat-x;
-    background-size: 25px auto, 20px auto;
-    background-position: 0 50%, 0 0;
+    position: relative;
 }
 
-
-.footer-icon {
-    height: 50px;
-    margin-right: 15px;
-    margin-left: 15px;
+footer::before {
+    content: "Qo 3,1: Per ogni cosa c'è il suo momento, il suo tempo per ogni faccenda sotto il cielo.";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-style: italic;
+    font-size: 2em;
+    text-align: center;
+    width: 80%;
+    color:  navy;
+    z-index: 1;
 }
 
 /* Media queries */
